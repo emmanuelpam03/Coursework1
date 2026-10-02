@@ -1,0 +1,483 @@
+/* CSS Variables */
+:root {
+  --ink: #10171b;
+  --ink-soft: #172126;
+  --paper: #f2eee7;
+  --paper-deep: #e6e0d6;
+  --signal: #e7ff5b;
+  --signal-deep: #b9d92c;
+  --coral: #ff765f;
+  --muted: #8b9793;
+  --line: rgba(242, 238, 231, .16);
+  --serif: 'Barlow Condensed', sans-serif;
+  --sans: 'Space Grotesk', sans-serif;
+  --header-height: 76px;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Reset the scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Basic styles for the body */
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Style for the links in the index.html */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Style for buttons, inputs, and select elements */
+button,
+input,
+select {
+  font: inherit;
+}
+
+/* Style for the tap highlight on touch devices */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Style for the focus visible state */
+:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 4px;
+}
+
+/* Style for the site header */
+.site-header {
+  min-height: var(--header-height);
+  padding: 0 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid rgba(16, 23, 27, .1);
+  position: relative;
+  z-index: 5;
+  background: var(--paper);
+}
+
+/* Style for the logo/brandname */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  font-weight: 600;
+  letter-spacing: -.04em;
+  white-space: nowrap;
+}
+
+/* Style for the bold text in the logo */
+.logo b {
+  font-weight: 400;
+  color: #60706c;
+}
+
+/* Style for the logo mark */
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--ink);
+  color: var(--signal);
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+
+/* Style for the site navigation */
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2.6rem);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* Style for the links in the site navigation */
+.site-nav a {
+  color: #67736f;
+  transition: color .2s ease;
+}
+
+/* Style for the active and hover states of the links in the site navigation */
+.site-nav a:hover,
+.site-nav a.active {
+  color: var(--ink);
+}
+
+/* Style for the account section in the site navigation */
+.nav-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 1.3rem;
+  border-left: 1px solid rgba(16, 23, 27, .17);
+}
+
+/* Style for the links in the account section */
+.nav-account a {
+  color: var(--ink);
+}
+
+/* Style for the logout link in the account section */
+.nav-account .nav-logout {
+  color: #7d8884;
+  font-size: 10px;
+}
+
+/* Style for the menu toggle button */
+.menu-toggle {
+  display: none;
+  border: 0;
+  background: transparent;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  cursor: pointer;
+}
+
+/* Style for the hero section */
+.hero {
+  height: calc(100svh - var(--header-height));
+  min-height: calc(100svh - var(--header-height));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Style for the home hero section */
+.home-hero {
+  display: flex;
+  align-items: center;
+  padding: 9vh 10vw;
+  background: var(--paper);
+}
+
+/* Creates an angled, semi-transparent overlay gradient across the hero section that allows user clicks to pass through to underlying elements */
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0 55%, rgba(230, 224, 214, .55) 55% 100%);
+  pointer-events: none;
+}
+
+/* Places text above the overlay and limits its width for easier reading */
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+}
+
+.signal {
+  margin: 0 0 1.15rem;
+  color: #78837f;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  line-height: .9;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(4.5rem, 8vw, 7rem);
+}
+
+h2 {
+  font-size: clamp(3rem, 6vw, 6rem);
+}
+
+h1 em,
+h2 em {
+  color: var(--coral);
+  font-style: normal;
+}
+
+.hero-p {
+  max-width: 390px;
+  color: #64716d;
+  font-size: 17px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2.2rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  border: 1px solid transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.button:hover {
+  transform: translateY(-3px);
+}
+
+.button-primary {
+  background: var(--ink);
+  color: var(--signal);
+}
+
+.button-primary:hover {
+  background: #27373b;
+}
+
+/* .button-wide {
+  width: 100%;
+  margin-top: 1rem;
+} */
+
+.text-link {
+  border-bottom: 1px solid currentColor;
+  color: #66736e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.hero-radar {
+  width: min(36vw, 460px);
+  aspect-ratio: 1;
+  position: absolute;
+  right: 10vw;
+  top: calc(50% - min(18vw, 230px));
+  border: 1px solid rgba(16, 23, 27, .13);
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, transparent 0 20%, rgba(16, 23, 27, .035) 20.2% 20.4%);
+}
+
+.radar-ring {
+  position: absolute;
+  border: 1px solid rgba(16, 23, 27, .12);
+  border-radius: 50%;
+  inset: 17%;
+}
+
+.ring-two {
+  inset: 38%;
+}
+
+.radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 5deg, transparent 0 77%, rgba(231, 255, 91, .65) 78%, transparent 87%);
+  animation: rotate 6s linear infinite;
+}
+
+.radar-dot {
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: 0 0 0 5px rgba(255, 118, 95, .18);
+}
+
+.dot-one {
+  top: 28%;
+  left: 63%;
+}
+
+.dot-two {
+  bottom: 23%;
+  left: 31%;
+  background: var(--signal);
+  box-shadow: 0 0 0 5px rgba(231, 255, 91, .16);
+}
+
+.radar-label {
+  position: absolute;
+  top: 47%;
+  left: 44%;
+  color: #87918d;
+  font: 700 10px/1.4 var(--sans);
+  letter-spacing: .12em;
+}
+
+.radar-label strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.hero-footer {
+  position: absolute;
+  right: 10vw;
+  bottom: 2rem;
+  left: 10vw;
+  display: flex;
+  justify-content: space-between;
+  color: #89928f;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.section {
+  padding: 8rem 10vw;
+}
+
+.section-dark {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+}
+
+.section-heading h2 {
+  margin-bottom: 4rem;
+}
+
+.section-heading h2 span {
+  color: var(--signal);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.feature-card {
+  min-height: 255px;
+  padding: 2rem 2rem 1rem 0;
+  border-right: 1px solid var(--line);
+}
+
+.feature-card+.feature-card {
+  padding-left: 2rem;
+}
+
+.feature-card:last-child {
+  border-right: 0;
+}
+
+.feature-card.featured {
+  background: var(--signal);
+  color: var(--ink);
+  padding-right: 2rem;
+}
+
+.card-index {
+  color: var(--coral);
+  font: 700 20px var(--serif);
+}
+
+.feature-card h3 {
+  margin: 3rem 0 1rem;
+  font: 700 29px/1 var(--serif);
+  text-transform: uppercase;
+}
+
+.feature-card p {
+  max-width: 270px;
+  color: #aeb8b2;
+}
+
+.feature-card.featured p {
+  color: #526059;
+}
+
+/* Statistics Section */
+.stat-section {
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+  background: var(--signal);
+}
+
+.stat-line {
+  display: grid;
+  grid-template-columns: 5% 35% 1fr;
+  align-items: center;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid rgba(16, 23, 27, .2);
+  text-transform: uppercase;
+}
+
+.stat-line:last-child {
+  border-bottom: 0;
+}
+
+.stat-line span {
+  color: var(--coral);
+  font: 700 20px var(--serif);
+}
+
+.stat-line strong {
+  font: 700 27px var(--serif);
+}
+
+.stat-line small {
+  color: #6a786f;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+/* Site Footer */
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.6rem 5vw;
+  color: #7c8883;
+  background: var(--paper);
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.site-footer a {
+  color: var(--ink);
+}
