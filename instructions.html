@@ -1,11 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arena Defender | How to play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+
+  <body data-page="instructions">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Arena Defender home"
+        ><span class="brand-mark">AD</span><span>Arena <b>Defender</b></span></a
+      >
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="game.html">Play</a><a href="rankings.html">Rankings</a
+        ><a class="active" href="instructions.html">How to play</a
+        ><span class="nav-account" data-auth-slot></span>
+      </nav>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        Menu
+      </button>
+    </header>
+    <main class="content-page manual-page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Field manual / 04</p>
+          <h1>Know the <em>signal.</em></h1>
+        </div>
+      </div>
+      <div class="manual-grid">
+        <section class="manual-feature">
+          <span class="manual-number">01</span>
+          <h2>Protect the core.<br /><em>Survive the wave.</em></h2>
+          <p>
+            Move around the arena, track incoming targets, and fire before they
+            breach your perimeter. This training simulation accelerates the
+            pressure with every wave.
+          </p>
+          <a class="button button-primary" href="game.html?mode=tutorial"
+            >Start training simulation <span>-></span></a
+          >
+        </section>
+        <section class="manual-list">
+          <div>
+            <span class="manual-key">W A S D</span>
+            <p>
+              <strong>Move</strong> Navigate the arena and dodge incoming
+              objects.
+            </p>
+          </div>
+          <div>
+            <span class="manual-key">CLICK</span>
+            <p>
+              <strong>Fire</strong> Aim at targets and fire your pulse weapon.
+            </p>
+          </div>
+          <div>
+            <span class="manual-key">P / ESC</span>
+            <p>
+              <strong>Pause</strong> Take a breath. The arena waits for you.
+            </p>
+          </div>
+          <div>
+            <span class="manual-key">WAVE</span>
+            <p>
+              <strong>Progress</strong> Clear four waves to complete the defence
+              and unlock the final result.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <span>Arena Defender</span><span>Local pilot network</span
+      ><a href="about.html">About the project</a>
+    </footer>
+  </body>
 </html>
