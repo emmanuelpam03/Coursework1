@@ -1,11 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arena Defender | Play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/game.css" />
+    <link rel="stylesheet" href="css/accessibility.css" />
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script type="module" src="js/game.js"></script>
+  </head>
+
+  <body data-page="game">
+    <header class="site-header game-header">
+      <a class="brand" href="index.html" aria-label="Arena Defender home"
+        ><span class="brand-mark">AD</span><span>Arena <b>Defender</b></span></a
+      >
+      <div class="game-top-status">
+        <span class="status-dot"></span
+        ><span data-session-label>Training simulation</span>
+      </div>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="rankings.html">Rankings</a
+        ><a href="instructions.html">How to play</a
+        ><span class="nav-account" data-auth-slot></span>
+      </nav>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        Menu
+      </button>
+    </header>
+    <main class="game-layout">
+      <section class="game-stage">
+        <canvas
+          id="renderCanvas"
+          aria-label="Arena Defender 3D game arena"
+        ></canvas>
+        <div class="game-hud">
+          <div class="hud-top">
+            <div>
+              <span class="hud-label">Wave</span
+              ><strong id="wave-value">01 <small>/ 04</small></strong>
+            </div>
+            <div>
+              <span class="hud-label">Score</span
+              ><strong id="score-value">000000</strong>
+            </div>
+            <div>
+              <span class="hud-label">Core integrity</span
+              ><strong id="health-value">100%</strong>
+            </div>
+          </div>
+          <div class="hud-bottom">
+            <div class="health-track"><span id="health-bar"></span></div>
+            <span class="hud-hint">WASD move / click to fire</span
+            ><button class="hud-pause" id="pause-button" type="button">
+              Pause
+            </button>
+          </div>
+        </div>
+        <div class="game-overlay" id="game-overlay">
+          <p class="eyebrow">Training simulation</p>
+          <h1>Defend<br /><em>the core.</em></h1>
+          <p id="game-message">
+            Move with WASD or arrow keys. Click inside the arena to fire at
+            incoming targets.
+          </p>
+          <button class="button button-primary" id="start-button" type="button">
+            Start simulation <span>-></span>
+          </button>
+        </div>
+      </section>
+      <aside class="game-sidebar">
+        <div class="sidebar-block">
+          <p class="eyebrow">Current loadout</p>
+          <h2 id="loadout-name">Pulse MK-I</h2>
+          <div class="loadout-stat">
+            <span>Damage</span
+            ><span class="stat-meter" id="loadout-damage"><i></i></span>
+          </div>
+          <div class="loadout-stat">
+            <span>Fire rate</span
+            ><span class="stat-meter" id="loadout-fire"><i></i></span>
+          </div>
+          <div class="loadout-stat">
+            <span>Range</span
+            ><span class="stat-meter" id="loadout-range"><i></i></span>
+          </div>
+        </div>
+        <div class="sidebar-block mission-list">
+          <p class="eyebrow">Mission brief</p>
+          <div>
+            <span class="mission-icon">*</span><span>Survive 4 waves</span>
+          </div>
+          <div>
+            <span class="mission-icon">+</span><span>Protect the core</span>
+          </div>
+          <div>
+            <span class="mission-icon">+</span><span>Earn an upgrade</span>
+          </div>
+        </div>
+        <div class="sidebar-block sidebar-foot">
+          <p>All progress saves to your pilot profile after a run.</p>
+          <a href="instructions.html" class="text-link">Field manual -></a>
+          <button
+            class="sound-toggle"
+            id="mute-button"
+            type="button"
+            aria-pressed="true"
+          >
+            Sound on
+          </button>
+        </div>
+      </aside>
+    </main>
+  </body>
 </html>
