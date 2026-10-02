@@ -1,11 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arena Defender | Rankings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/accessibility.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+
+  <body data-page="rankings">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Arena Defender home"
+        ><span class="brand-mark">AD</span><span>Arena <b>Defender</b></span></a
+      >
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="game.html">Play</a
+        ><a class="active" href="rankings.html">Rankings</a
+        ><a href="instructions.html">How to play</a
+        ><span class="nav-account" data-auth-slot></span>
+      </nav>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        Menu
+      </button>
+    </header>
+    <main class="content-page">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Local pilot network / 04</p>
+          <h1>Top <em>defenders.</em></h1>
+        </div>
+        <a class="button button-primary" href="game.html"
+          >Play a run <span>-></span></a
+        >
+      </div>
+      <section class="ranking-panel">
+        <div class="ranking-toolbar">
+          <span>Leaderboard</span
+          ><label class="ranking-filter"
+            >View<select id="score-view">
+              <option value="best">Best per pilot</option>
+              <option value="all">All runs</option>
+            </select></label
+          ><label class="ranking-filter"
+            >Difficulty<select id="difficulty-filter">
+              <option value="all">All</option>
+              <option value="practice">Practice</option>
+              <option value="standard">Standard</option>
+              <option value="hard">Hard</option>
+            </select></label
+          ><span id="ranking-summary">Local pilot network</span>
+        </div>
+        <div class="ranking-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Pilot</th>
+                <th>Score</th>
+                <th>Level</th>
+                <th>Difficulty</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+          </table>
+          <div class="empty-state" id="ranking-empty">
+            <span class="empty-mark">-</span>
+            <h2>No runs logged yet</h2>
+            <p>Complete your first simulation to appear on the board.</p>
+            <a href="game.html" class="text-link">Enter the arena -></a>
+          </div>
+        </div>
+        <div class="personal-best" id="personal-best"></div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <span>Arena Defender</span><span>Local pilot network</span
+      ><a href="about.html">About the project</a>
+    </footer>
+  </body>
 </html>

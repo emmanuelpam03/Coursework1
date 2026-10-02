@@ -626,3 +626,96 @@ select:focus {
   font-weight: 700;
   text-decoration: underline;
 }
+
+/* About/Profile/Rankings Pages */
+.content-page {
+  min-height: calc(100vh - var(--header-height) - 66px);
+  padding: 8vh 10vw;
+  background: var(--paper-deep);
+}
+
+.page-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.page-heading h1 {
+  margin: 0;
+  font-size: clamp(4.5rem, 9vw, 8rem);
+}
+
+/* Rankings Page */
+.ranking-panel {
+  background: var(--paper);
+}
+
+.ranking-toolbar {
+  padding: 1.4rem 1.6rem;
+}
+
+.ranking-toolbar span:last-child {
+  color: #8a9691;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.ranking-table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 1.1rem 1.6rem;
+  border-bottom: 1px solid rgba(16, 23, 27, .1);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+th {
+  color: #7d8984;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+td:first-child {
+  color: var(--coral);
+  font: 700 24px var(--serif);
+}
+
+td:nth-child(2) {
+  font-weight: 700;
+}
+
+tr.current {
+  background: rgba(231, 255, 91, .23);
+}
+
+.empty-state {
+  padding: 5rem 1rem;
+  text-align: center;
+}
+
+.empty-mark {
+  color: var(--coral);
+  font: 700 38px var(--serif);
+}
+
+.empty-state h2 {
+  margin: 1rem 0 .5rem;
+  font-size: 36px;
+}
+
+.empty-state p {
+  color: #7c8883;
+  font-size: 13px;
+}
