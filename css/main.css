@@ -790,3 +790,58 @@ tr.current {
   font-weight: 700;
   letter-spacing: .08em;
 }
+
+/* Profile Page */
+.profile-panel {
+  max-width: 840px;
+  padding: 3rem;
+  background: var(--paper);
+}
+
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(16, 23, 27, .12);
+}
+
+.profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  background: var(--ink);
+  color: var(--signal);
+  font: 700 24px var(--serif);
+}
+
+.profile-identity h2 {
+  margin-bottom: .3rem;
+  font-size: 42px;
+}
+
+.profile-identity p {
+  margin: 0;
+  color: #7a8782;
+  font-size: 12px;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.profile-stats span {
+  display: block;
+  color: #7a8782;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.profile-stats strong {
+  font: 700 42px var(--serif);
+}
