@@ -18,12 +18,13 @@ export class InputManager {
       const key = event.key.toLowerCase();
       if (key === this.bindings.fire || key === "spacebar") {
         event.preventDefault();
-        this.onFire?.();
+        if (this.onFire) this.onFire();
         return;
       }
       this.keys.add(key);
-      if (key === this.bindings.pause || event.key === "Escape")
-        this.onPause?.();
+      if (key === this.bindings.pause || event.key === "Escape") {
+        if (this.onPause) this.onPause();
+      }
     };
     this.handleKeyUp = (event) => {
       this.keys.delete(event.key.toLowerCase());

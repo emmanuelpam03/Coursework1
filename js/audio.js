@@ -3,10 +3,10 @@ export class AudioManager {
   // Load saved audio settings.
   constructor(settings = {}) {
     this.context = null;
-    this.muted = settings.muted ?? false;
-    this.masterVolume = settings.masterVolume ?? 0.08;
-    this.effectsVolume = settings.effectsVolume ?? 0.08;
-    this.musicVolume = settings.musicVolume ?? 0.05;
+    this.muted = settings.muted || false;
+    this.masterVolume = settings.masterVolume || 0.08;
+    this.effectsVolume = settings.effectsVolume || 0.08;
+    this.musicVolume = settings.musicVolume || 0.05;
   }
 
   // Ask the browser to allow audio after user interaction.
@@ -46,7 +46,8 @@ export class AudioManager {
   }
 
   // Update volume settings.
-  setVolumes({ masterVolume, effectsVolume, musicVolume } = {}) {
+  setVolumes(settings = {}) {
+    const { masterVolume, effectsVolume, musicVolume } = settings;
     if (masterVolume !== undefined) this.masterVolume = Number(masterVolume);
     if (effectsVolume !== undefined) this.effectsVolume = Number(effectsVolume);
     if (musicVolume !== undefined) this.musicVolume = Number(musicVolume);

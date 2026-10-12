@@ -2,7 +2,11 @@
 export class Weapon {
   // Copy the weapon definition into the class.
   constructor(definition) {
-    Object.assign(this, definition);
+    this.name = definition.name;
+    this.damage = definition.damage;
+    this.fireRate = definition.fireRate;
+    this.range = definition.range;
+    this.meterClass = definition.meterClass;
   }
 
   // Report whether the weapon can fire.

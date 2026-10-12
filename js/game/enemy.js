@@ -4,7 +4,10 @@ export class Enemy {
   constructor(mesh, type, stats) {
     this.mesh = mesh;
     this.type = type;
-    Object.assign(this, stats);
+    this.health = stats.health;
+    this.speed = stats.speed;
+    this.damage = stats.damage;
+    this.points = stats.points;
   }
 
   // Move towards the player.

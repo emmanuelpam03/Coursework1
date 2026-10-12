@@ -277,36 +277,35 @@ function triggerScreenShake() {
 // Create one enemy using the current wave rules.
 function spawnEnemy() {
   const threatRoll = Math.random();
-  const enemyType =
-    wave === 1
-      ? "ball"
-      : wave === 2
-        ? threatRoll < 0.55
-          ? "fast-ball"
-          : "stone"
-        : wave === 3
-          ? threatRoll < 0.4
-            ? "fast-ball"
-            : threatRoll < 0.75
-              ? "stone"
-              : "volatile"
-          : threatRoll < 0.25
-            ? "fast-ball"
-            : threatRoll < 0.6
-              ? "stone"
-              : "volatile";
-  const enemy =
-    enemyType === "stone"
-      ? MeshBuilder.CreateBox(
-          `stone-${Date.now()}`,
-          { width: 0.85, height: 0.85, depth: 0.85 },
-          scene,
-        )
-      : MeshBuilder.CreateSphere(
-          `threat-${Date.now()}`,
-          { diameter: enemyType === "volatile" ? 0.9 : 0.65, segments: 12 },
-          scene,
-        );
+    let enemyType = "ball";
+    if (wave === 2) {
+      enemyType = threatRoll < 0.55 ? "fast-ball" : "stone";
+    } else if (wave === 3) {
+      if (threatRoll < 0.4) enemyType = "fast-ball";
+      else if (threatRoll < 0.75) enemyType = "stone";
+      else enemyType = "volatile";
+    } else if (wave >= 4) {
+      if (threatRoll < 0.25) enemyType = "fast-ball";
+      else if (threatRoll < 0.6) enemyType = "stone";
+      else enemyType = "volatile";
+    }
+
+    let enemy;
+    if (enemyType === "stone") {
+      enemy = MeshBuilder.CreateBox(
+        `stone-${Date.now()}`,
+        { width: 0.85, height: 0.85, depth: 0.85 },
+        scene,
+      );
+    } else {
+      let diameter = 0.65;
+      if (enemyType === "volatile") diameter = 0.9;
+      enemy = MeshBuilder.CreateSphere(
+        `threat-${Date.now()}`,
+        { diameter, segments: 12 },
+        scene,
+      );
+    }
   const edge = Math.floor(Math.random() * 4);
   enemy.position =
     edge === 0
@@ -401,8 +400,12 @@ function endRun(completed = false) {
   message.textContent = user
     ? `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Your result is logged.`
     : `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Log in to save it.`;
+  let highestLevel = 1;
+  if (user && user.progress && user.progress.highestLevel) {
+    highestLevel = user.progress.highestLevel;
+  }
   updateCurrentUserProgress({
-    highestLevel: Math.max(wave, user?.progress?.highestLevel ?? 1),
+    highestLevel: Math.max(wave, highestLevel),
     weaponLevel,
   });
   overlay.querySelector(".button").textContent = "Run it again ->";
@@ -420,10 +423,11 @@ async function startRun() {
   score = 0;
   wave = 1;
   levelManager.reset();
-  weaponLevel = Math.min(
-    weapons.length - 1,
-    Math.max(0, Number(user?.progress?.weaponLevel) || 0),
-  );
+  let savedWeaponLevel = 0;
+  if (user && user.progress) {
+    savedWeaponLevel = Number(user.progress.weaponLevel) || 0;
+  }
+  weaponLevel = Math.min(weapons.length - 1, Math.max(0, savedWeaponLevel));
   enemiesSpawnedThisWave = 0;
   spawnTimer = 0;
   enemies.splice(0).forEach((enemy) => enemy.mesh.dispose());
