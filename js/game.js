@@ -437,9 +437,9 @@ function endRun(completed) {
     });
   }
   if (user) {
-    message.textContent = `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Your result is logged.`;
+    message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Your result is logged.`;
   } else {
-    message.textContent = `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Log in to save it.`;
+    message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Log in to save it.`;
   }
   let highestLevel = 1;
   if (user && user.progress && user.progress.highestLevel) {
@@ -491,10 +491,10 @@ async function startRun() {
   health = playerController.health;
   applyLevelTheme();
   overlay.classList.add("hidden");
-  startButton.textContent = "Start simulation ->";
+  startButton.textContent = "Deploy now ->";
   if (tutorialMode) {
     message.textContent =
-      "Training mode: practise movement, firing, and dodging in one short wave.";
+      "Training deployment: practise movement, firing, and dodging in one short wave.";
   }
   updateHud();
   renderer.setReducedEffects(settings.reducedEffects);
@@ -517,8 +517,8 @@ async function continueToNextWave() {
 function showLevelComplete() {
   started = false;
   gameState.stop();
-  message.textContent = `${levelNames[wave - 2]} cleared. ${currentWeapon().name} is ready for the next deployment.`;
-  startButton.textContent = `Deploy ${levelNames[wave - 1]} ->`;
+  message.textContent = `${levelNames[wave - 2]} secured. ${currentWeapon().name} is ready for the next deployment.`;
+  startButton.textContent = `Deploy to ${levelNames[wave - 1]} ->`;
   overlay.classList.remove("hidden");
 }
 // Set the aim direction from the current movement keys.
