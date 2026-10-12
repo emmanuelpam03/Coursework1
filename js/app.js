@@ -1,4 +1,37 @@
+import {
+  addUser,
+  clearSession,
+  findUser,
+  getAllScores,
+  getBestScores,
+  getCurrentUser,
+  getUsers,
+  getSettings,
+  saveSettings,
+  setSession,
+} from "./storage.js";
 import { showErrors, validateRegistration } from "./validation.js";
+
+const page = document.body.dataset.page;
+
+if (page === "home") {
+  window.history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+}
+
+// Apply saved accessibility preferences to the current page.
+function applySettings() {
+  const settings = getSettings();
+  if (!document.querySelector('link[href="css/accessibility.css"]')) {
+    const stylesheet = document.createElement("link");
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = "css/accessibility.css";
+    document.head.append(stylesheet);
+  }
+  document.body.classList.toggle("high-contrast", settings.highContrast);
+  document.body.classList.toggle("large-text", settings.largeText);
+  document.body.classList.toggle("reduced-effects", settings.reducedEffects);
+}
 
 // Set up the shared navigation and logout link.
 function setupNavigation() {
@@ -93,6 +126,47 @@ function setupLogin() {
   });
 }
 
+// Render the rankings table and filters.
+function setupRankings() {
+  const body = document.querySelector("#ranking-body");
+  const empty = document.querySelector("#ranking-empty");
+  if (!body || !empty) return;
+  const current = getCurrentUser();
+  const filter = document.querySelector("#difficulty-filter");
+  const view = document.querySelector("#score-view");
+  const render = () => {
+    const selected = filter?.value ?? "all";
+    const source = view?.value === "all" ? getAllScores() : getBestScores();
+    const scores = source.filter(
+      (score) =>
+        selected === "all" ||
+        String(score.difficulty ?? "standard").toLowerCase() === selected,
+    );
+    empty.hidden = Boolean(scores.length);
+    body.innerHTML = scores
+      .slice(0, 20)
+      .map((score, index) => {
+        const date = score.date ? new Date(score.date) : null;
+        const dateLabel =
+          date && !Number.isNaN(date.valueOf())
+            ? date.toLocaleDateString()
+            : "-";
+        return `<tr class="${current?.username === score.username ? "current" : ""}"><td>${String(index + 1).padStart(2, "0")}</td><td>${score.username}${current?.username === score.username ? " <small>(you)</small>" : ""}</td><td>${Number(score.score ?? 0).toLocaleString()}</td><td>${score.level ?? "-"}</td><td>${score.difficulty ?? "Standard"}</td><td>${dateLabel}</td></tr>`;
+      })
+      .join("");
+    const personalBest = document.querySelector("#personal-best");
+    const own = current
+      ? getBestScores().find((score) => score.username === current.username)
+      : null;
+    if (personalBest)
+      personalBest.textContent = own
+        ? `Personal best: ${own.score.toLocaleString()} points - Level ${own.level}`
+        : "Log in to track your personal best.";
+  };
+  filter?.addEventListener("change", render);
+  view?.addEventListener("change", render);
+  render();
+}
 
 // Render the logged-in user's profile.
 function setupProfile() {
@@ -113,3 +187,52 @@ function setupProfile() {
   action.textContent = "Return to the arena ->";
   action.href = "game.html";
 }
+
+// Load and save the profile settings form.
+function setupSettings() {
+  const form = document.querySelector("#settings-form");
+  if (!form) return;
+  const settings = getSettings();
+  Object.entries(settings).forEach(([key, value]) => {
+    const field = form.elements.namedItem(key);
+    if (!field || key === "bindings") return;
+    if (field.type === "checkbox") field.checked = Boolean(value);
+    else field.value = value;
+  });
+  Object.entries(settings.bindings).forEach(([key, value]) => {
+    const field = form.elements.namedItem(key);
+    if (field) field.value = value === " " ? "Space" : value;
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    saveSettings({
+      ...data,
+      masterVolume: Number(data.masterVolume),
+      effectsVolume: Number(data.effectsVolume),
+      musicVolume: Number(data.musicVolume),
+      highContrast: form.elements.highContrast.checked,
+      largeText: form.elements.largeText.checked,
+      reducedEffects: form.elements.reducedEffects.checked,
+      aimAssist: form.elements.aimAssist.checked,
+      screenShake: form.elements.screenShake.checked,
+      bindings: Object.fromEntries(
+        ["up", "down", "left", "right", "fire", "pause"].map((key) => [
+          key,
+          form.elements[key].value === "Space" ? " " : form.elements[key].value,
+        ]),
+      ),
+    });
+    applySettings();
+    document.querySelector("#settings-feedback").textContent =
+      "Settings saved for this browser.";
+  });
+}
+
+setupNavigation();
+setupRegistration();
+setupLogin();
+setupRankings();
+setupProfile();
+applySettings();
+setupSettings();
