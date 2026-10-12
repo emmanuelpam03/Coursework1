@@ -16,8 +16,9 @@ export class PowerUp {
 
   // Apply the pickup effect to the player.
   collect(player) {
-    if (this.kind === "repair")
+    if (this.kind === "repair") {
       player.health = Math.min(100, player.health + 20);
+    }
     this.mesh.dispose();
   }
 

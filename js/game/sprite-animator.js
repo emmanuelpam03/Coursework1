@@ -29,6 +29,8 @@ export class SpriteAnimator {
     this.sprite.stopAnimation();
     this.currentState = state;
     const animation = this.states[state];
-    if (animation) this.sprite.cellIndex = animation.frame;
+    if (animation) {
+      this.sprite.cellIndex = animation.frame;
+    }
   }
 }

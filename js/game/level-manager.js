@@ -30,7 +30,9 @@ export class LevelManager {
 
   // Move to the next level.
   advance() {
-    if (!this.isFinal) this.current += 1;
+    if (!this.isFinal) {
+      this.current += 1;
+    }
     return this.current;
   }
 

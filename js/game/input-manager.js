@@ -2,7 +2,7 @@
 export class InputManager {
   // Set the default controls and keyboard listeners.
   constructor(target = window) {
-    this.keys = new Set();
+    this.keys = {};
     this.bindings = {
       up: "w",
       down: "s",
@@ -14,21 +14,21 @@ export class InputManager {
     this.target = target;
     this.onFire = null;
     this.onPause = null;
-    this.handleKeyDown = (event) => {
+    this.handleKeyDown = function (event) {
       const key = event.key.toLowerCase();
       if (key === this.bindings.fire || key === "spacebar") {
         event.preventDefault();
         if (this.onFire) this.onFire();
         return;
       }
-      this.keys.add(key);
+      this.keys[key] = true;
       if (key === this.bindings.pause || event.key === "Escape") {
         if (this.onPause) this.onPause();
       }
-    };
-    this.handleKeyUp = (event) => {
-      this.keys.delete(event.key.toLowerCase());
-    };
+    }.bind(this);
+    this.handleKeyUp = function (event) {
+      delete this.keys[event.key.toLowerCase()];
+    }.bind(this);
     target.addEventListener("keydown", this.handleKeyDown);
     target.addEventListener("keyup", this.handleKeyUp);
   }
@@ -42,7 +42,7 @@ export class InputManager {
       left: "arrowleft",
       right: "arrowright",
     };
-    return this.keys.has(key) || this.keys.has(arrowKeys[action]);
+    return this.keys[key] || this.keys[arrowKeys[action]];
   }
 
   // Change one control binding.

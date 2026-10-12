@@ -27,6 +27,7 @@ export class ScoreManager {
 
   // Calculate the run accuracy as a percentage.
   get accuracy() {
-    return this.shots ? Math.round((this.hits / this.shots) * 100) : 0;
+    if (this.shots === 0) return 0;
+    return Math.round((this.hits / this.shots) * 100);
   }
 }

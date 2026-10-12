@@ -64,14 +64,32 @@ function setupRegistration() {
   if (!form) return;
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const data = {};
-    new FormData(form).forEach((value, key) => {
-      data[key] = value;
-    });
+    const data = {
+      username: form.elements.username.value,
+      email: form.elements.email.value,
+      password: form.elements.password.value,
+      confirmPassword: form.elements.confirmPassword.value,
+      firstName: form.elements.firstName.value,
+      lastName: form.elements.lastName.value,
+      dateOfBirth: form.elements.dateOfBirth.value,
+      country: form.elements.country.value,
+      preferredDifficulty: form.elements.preferredDifficulty.value,
+      terms: form.elements.terms.checked,
+    };
     const errors = validateRegistration(data, getUsers());
     showErrors(form, errors);
     const feedback = form.querySelector(".form-feedback");
-    if (Object.keys(errors).length) {
+    if (
+      errors.username ||
+      errors.email ||
+      errors.password ||
+      errors.confirmPassword ||
+      errors.firstName ||
+      errors.lastName ||
+      errors.dateOfBirth ||
+      errors.country ||
+      errors.terms
+    ) {
       feedback.textContent = "Check the highlighted fields.";
       return;
     }
@@ -103,17 +121,17 @@ function setupLogin() {
   if (!form) return;
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const data = {};
-    new FormData(form).forEach((value, key) => {
-      data[key] = value;
-    });
+    const data = {
+      identifier: form.elements.identifier.value,
+      password: form.elements.password.value,
+    };
     const errors = {};
     if (!data.identifier.trim())
       errors.identifier = "Enter your username or email.";
     if (!data.password) errors.password = "Enter your password.";
     showErrors(form, errors);
     const feedback = form.querySelector(".form-feedback");
-    if (Object.keys(errors).length) {
+    if (errors.identifier || errors.password) {
       feedback.textContent = "Check the highlighted fields.";
       return;
     }
@@ -147,15 +165,19 @@ function setupRankings() {
     let source = getBestScores();
     if (view && view.value === "all") source = getAllScores();
     const scores = [];
-    source.forEach((score) => {
+    for (let index = 0; index < source.length; index += 1) {
+      const score = source[index];
       const difficulty = String(score.difficulty || "standard").toLowerCase();
       if (selected === "all" || difficulty === selected) {
         scores.push(score);
       }
-    });
+    }
     empty.hidden = scores.length > 0;
     body.innerHTML = "";
-    scores.slice(0, 20).forEach((score, index) => {
+    let numberOfScores = scores.length;
+    if (numberOfScores > 20) numberOfScores = 20;
+    for (let index = 0; index < numberOfScores; index += 1) {
+      const score = scores[index];
       const date = score.date ? new Date(score.date) : null;
       let dateLabel = "-";
       if (date && !Number.isNaN(date.valueOf())) {
@@ -173,13 +195,18 @@ function setupRankings() {
       const level = score.level || "-";
       const difficulty = score.difficulty || "Standard";
       body.innerHTML += `<tr class="${currentClass}"><td>${String(index + 1).padStart(2, "0")}</td><td>${score.username}${currentLabel}</td><td>${scoreNumber}</td><td>${level}</td><td>${difficulty}</td><td>${dateLabel}</td></tr>`;
-    });
+    }
 
     const personalBest = document.querySelector("#personal-best");
     let own = null;
     if (current) {
       const bestScores = getBestScores();
-      own = bestScores.find((score) => score.username === current.username);
+      for (let index = 0; index < bestScores.length; index += 1) {
+        if (bestScores[index].username === current.username) {
+          own = bestScores[index];
+          break;
+        }
+      }
     }
     if (personalBest) {
       if (own) {
@@ -207,9 +234,18 @@ function setupProfile() {
       : 1;
   const scores = user.scores || [];
   document.querySelector("#profile-runs").textContent = scores.length;
-  document.querySelector("#profile-score").textContent = scores.length
-    ? Math.max(...scores.map((score) => score.score)).toLocaleString()
-    : "-";
+  let highestScore = 0;
+  for (let index = 0; index < scores.length; index += 1) {
+    if (scores[index].score > highestScore) {
+      highestScore = scores[index].score;
+    }
+  }
+  if (scores.length) {
+    document.querySelector("#profile-score").textContent =
+      highestScore.toLocaleString();
+  } else {
+    document.querySelector("#profile-score").textContent = "-";
+  }
   const action = document.querySelector("#profile-action");
   action.textContent = "Return to the arena ->";
   action.href = "game.html";
@@ -219,58 +255,52 @@ function setupSettings() {
   const form = document.querySelector("#settings-form");
   if (!form) return;
   const settings = getSettings();
-  Object.keys(settings).forEach((key) => {
-    const value = settings[key];
-    const field = form.elements.namedItem(key);
-    if (!field || key === "bindings") return;
-    if (field.type === "checkbox") field.checked = Boolean(value);
-    else field.value = value;
-  });
-  Object.keys(settings.bindings).forEach((key) => {
-    const value = settings.bindings[key];
-    const field = form.elements.namedItem(key);
-    if (field) field.value = value === " " ? "Space" : value;
-  });
+  form.elements.difficulty.value = settings.difficulty;
+  form.elements.masterVolume.value = settings.masterVolume;
+  form.elements.musicVolume.value = settings.musicVolume;
+  form.elements.effectsVolume.value = settings.effectsVolume;
+  form.elements.muted.checked = settings.muted;
+  form.elements.highContrast.checked = settings.highContrast;
+  form.elements.largeText.checked = settings.largeText;
+  form.elements.reducedEffects.checked = settings.reducedEffects;
+  form.elements.aimAssist.checked = settings.aimAssist;
+  form.elements.screenShake.checked = settings.screenShake;
+  form.elements.up.value = settings.bindings.up;
+  form.elements.down.value = settings.bindings.down;
+  form.elements.left.value = settings.bindings.left;
+  form.elements.right.value = settings.bindings.right;
+  form.elements.fire.value =
+    settings.bindings.fire === " " ? "Space" : settings.bindings.fire;
+  form.elements.pause.value = settings.bindings.pause;
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const data = {};
-    new FormData(form).forEach((value, key) => {
-      data[key] = value;
-    });
-    saveSettings({
-      ...data,
-      masterVolume: Number(data.masterVolume),
-      effectsVolume: Number(data.effectsVolume),
-      musicVolume: Number(data.musicVolume),
+    const data = {
+      difficulty: form.elements.difficulty.value,
+      masterVolume: form.elements.masterVolume.value,
+      musicVolume: form.elements.musicVolume.value,
+      effectsVolume: form.elements.effectsVolume.value,
+      muted: form.elements.muted.checked,
       highContrast: form.elements.highContrast.checked,
       largeText: form.elements.largeText.checked,
       reducedEffects: form.elements.reducedEffects.checked,
       aimAssist: form.elements.aimAssist.checked,
       screenShake: form.elements.screenShake.checked,
       bindings: {
-        up: form.elements.up.value === "Space" ? " " : form.elements.up.value,
-        down:
-          form.elements.down.value === "Space"
-            ? " "
-            : form.elements.down.value,
-        left:
-          form.elements.left.value === "Space"
-            ? " "
-            : form.elements.left.value,
-        right:
-          form.elements.right.value === "Space"
-            ? " "
-            : form.elements.right.value,
+        up: form.elements.up.value,
+        down: form.elements.down.value,
+        left: form.elements.left.value,
+        right: form.elements.right.value,
         fire:
           form.elements.fire.value === "Space"
             ? " "
             : form.elements.fire.value,
-        pause:
-          form.elements.pause.value === "Space"
-            ? " "
-            : form.elements.pause.value,
+        pause: form.elements.pause.value,
       },
-    });
+    };
+    data.masterVolume = Number(data.masterVolume);
+    data.musicVolume = Number(data.musicVolume);
+    data.effectsVolume = Number(data.effectsVolume);
+    saveSettings(data);
     applySettings();
     document.querySelector("#settings-feedback").textContent =
       "Settings saved for this browser.";

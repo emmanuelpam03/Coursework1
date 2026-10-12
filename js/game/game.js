@@ -20,7 +20,9 @@ export class Game {
 
   // Toggle pause only while a game is running.
   togglePause() {
-    if (this.started) this.paused = !this.paused;
+    if (this.started) {
+      this.paused = !this.paused;
+    }
     return this.paused;
   }
 }

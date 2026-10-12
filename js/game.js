@@ -178,10 +178,11 @@ const weapons = [
     meterClass: "meter-range",
   },
 ];
-const weaponModels = [];
-weapons.forEach((definition) => {
-  weaponModels.push(new Weapon(definition));
-});
+const weaponModels = [
+  new Weapon(weapons[0]),
+  new Weapon(weapons[1]),
+  new Weapon(weapons[2]),
+];
 // Use this difficulty if the data file cannot be loaded.
 const fallbackDifficulty = {
   enemySpeed: 1,
@@ -209,10 +210,12 @@ const levelManager = new LevelManager(
 );
 const scoreManager = new ScoreManager();
 const inputManager = new InputManager(window);
-Object.keys(settings.bindings).forEach((action) => {
-  const key = settings.bindings[action];
-  inputManager.setBinding(action, key);
-});
+inputManager.setBinding("up", settings.bindings.up);
+inputManager.setBinding("down", settings.bindings.down);
+inputManager.setBinding("left", settings.bindings.left);
+inputManager.setBinding("right", settings.bindings.right);
+inputManager.setBinding("fire", settings.bindings.fire);
+inputManager.setBinding("pause", settings.bindings.pause);
 const renderer = new Renderer3D(scene, arenaMaterial, defenderSprite);
 const tutorialMode =
   new URLSearchParams(window.location.search).get("mode") === "tutorial";
@@ -221,10 +224,23 @@ const tutorialEnemyTarget = 6;
 const difficultyConfigReady = fetch("data/difficulties.json")
   .then((response) => (response.ok ? response.json() : []))
   .then((difficulties) => {
-    const selected = Array.isArray(difficulties)
-      ? difficulties.find((difficulty) => difficulty.id === settings.difficulty)
-      : null;
-    if (selected) difficultyConfig = { ...fallbackDifficulty, ...selected };
+    let selected = null;
+    if (Array.isArray(difficulties)) {
+      for (let index = 0; index < difficulties.length; index += 1) {
+        if (difficulties[index].id === settings.difficulty) {
+          selected = difficulties[index];
+          break;
+        }
+      }
+    }
+    if (selected) {
+      difficultyConfig = {
+        enemySpeed: selected.enemySpeed || fallbackDifficulty.enemySpeed,
+        enemyDamage: selected.enemyDamage || fallbackDifficulty.enemyDamage,
+        scoreMultiplier:
+          selected.scoreMultiplier || fallbackDifficulty.scoreMultiplier,
+      };
+    }
   })
   .catch(() => undefined);
 let aimDirection = new Vector3(0, 0, 1);
@@ -374,7 +390,8 @@ function fire() {
   let firingDirection = aimDirection.clone();
   if (settings.aimAssist && enemies.length) {
     let nearest = enemies[0];
-    enemies.forEach((enemy) => {
+    for (let index = 0; index < enemies.length; index += 1) {
+      const enemy = enemies[index];
       const enemyDistance = Vector3.Distance(
         enemy.mesh.position,
         player.position,
@@ -384,7 +401,7 @@ function fire() {
         player.position,
       );
       if (enemyDistance < nearestDistance) nearest = enemy;
-    });
+    }
     firingDirection = nearest.mesh.position
       .subtract(player.position)
       .normalize();
@@ -456,9 +473,18 @@ async function startRun() {
   weaponLevel = Math.min(weapons.length - 1, Math.max(0, savedWeaponLevel));
   enemiesSpawnedThisWave = 0;
   spawnTimer = 0;
-  enemies.splice(0).forEach((enemy) => enemy.mesh.dispose());
-  projectiles.splice(0).forEach((projectile) => projectile.mesh.dispose());
-  powerUps.splice(0).forEach((powerUp) => powerUp.destroy());
+  for (let index = 0; index < enemies.length; index += 1) {
+    enemies[index].mesh.dispose();
+  }
+  for (let index = 0; index < projectiles.length; index += 1) {
+    projectiles[index].mesh.dispose();
+  }
+  for (let index = 0; index < powerUps.length; index += 1) {
+    powerUps[index].destroy();
+  }
+  enemies.length = 0;
+  projectiles.length = 0;
+  powerUps.length = 0;
   playerController.reset();
   health = playerController.health;
   applyLevelTheme();
@@ -583,13 +609,14 @@ scene.onBeforeRenderObservable.add(() => {
       continue;
     }
     let enemyIndex = -1;
-    enemies.forEach((enemy, index) => {
+    for (let index = 0; index < enemies.length; index += 1) {
+      const enemy = enemies[index];
       const distance = Vector3.Distance(
         projectile.mesh.position,
         enemy.mesh.position,
       );
       if (distance < 0.55 && enemyIndex === -1) enemyIndex = index;
-    });
+    }
     if (enemyIndex < 0) continue;
     const enemy = enemies[enemyIndex];
     projectile.destroy();

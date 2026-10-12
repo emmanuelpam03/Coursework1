@@ -3,14 +3,15 @@ export function validateRegistration(data, users) {
 
   let usernameTaken = false;
   let emailTaken = false;
-  users.forEach((user) => {
+  for (let index = 0; index < users.length; index += 1) {
+    const user = users[index];
     if (user.username.toLowerCase() === data.username.toLowerCase()) {
       usernameTaken = true;
     }
     if (user.email.toLowerCase() === data.email.toLowerCase()) {
       emailTaken = true;
     }
-  });
+  }
 
   if (!data.username || data.username.length < 3 || data.username.length > 18) {
     errors.username = "Use 3-18 characters.";
@@ -50,16 +51,18 @@ export function validateRegistration(data, users) {
 
 export function showErrors(form, errors) {
   const errorElements = form.querySelectorAll("[data-error-for]");
-  errorElements.forEach((element) => {
+  for (let index = 0; index < errorElements.length; index += 1) {
+    const element = errorElements[index];
     element.textContent = errors[element.dataset.errorFor] || "";
-  });
+  }
 
   const fields = form.querySelectorAll("[name]");
-  fields.forEach((field) => {
+  for (let index = 0; index < fields.length; index += 1) {
+    const field = fields[index];
     if (errors[field.name]) {
       field.setAttribute("aria-invalid", "true");
     } else {
       field.setAttribute("aria-invalid", "false");
     }
-  });
+  }
 }

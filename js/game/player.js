@@ -18,14 +18,12 @@ export class Player {
 
   // Move the player inside the arena bounds.
   move(direction, distance, bounds = { x: 7, z: 5 }) {
-    this.position.x = Math.max(
-      -bounds.x,
-      Math.min(bounds.x, this.position.x + direction.x * distance),
-    );
-    this.position.z = Math.max(
-      -bounds.z,
-      Math.min(bounds.z, this.position.z + direction.z * distance),
-    );
+    this.position.x += direction.x * distance;
+    this.position.z += direction.z * distance;
+    if (this.position.x > bounds.x) this.position.x = bounds.x;
+    if (this.position.x < -bounds.x) this.position.x = -bounds.x;
+    if (this.position.z > bounds.z) this.position.z = bounds.z;
+    if (this.position.z < -bounds.z) this.position.z = -bounds.z;
     this.syncSprite();
   }
 
