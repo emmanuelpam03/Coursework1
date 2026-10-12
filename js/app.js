@@ -21,12 +21,6 @@ if (page === "home") {
 
 function applySettings() {
   const settings = getSettings();
-  if (!document.querySelector('link[href="css/accessibility.css"]')) {
-    const stylesheet = document.createElement("link");
-    stylesheet.rel = "stylesheet";
-    stylesheet.href = "css/accessibility.css";
-    document.head.append(stylesheet);
-  }
   document.body.classList.toggle("high-contrast", settings.highContrast);
   document.body.classList.toggle("large-text", settings.largeText);
   document.body.classList.toggle("reduced-effects", settings.reducedEffects);
