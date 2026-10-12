@@ -178,7 +178,10 @@ const weapons = [
     meterClass: "meter-range",
   },
 ];
-const weaponModels = weapons.map((definition) => new Weapon(definition));
+const weaponModels = [];
+weapons.forEach((definition) => {
+  weaponModels.push(new Weapon(definition));
+});
 // Use this difficulty if the data file cannot be loaded.
 const fallbackDifficulty = {
   enemySpeed: 1,
@@ -206,9 +209,10 @@ const levelManager = new LevelManager(
 );
 const scoreManager = new ScoreManager();
 const inputManager = new InputManager(window);
-Object.entries(settings.bindings).forEach(([action, key]) =>
-  inputManager.setBinding(action, key),
-);
+Object.keys(settings.bindings).forEach((action) => {
+  const key = settings.bindings[action];
+  inputManager.setBinding(action, key);
+});
 const renderer = new Renderer3D(scene, arenaMaterial, defenderSprite);
 const tutorialMode =
   new URLSearchParams(window.location.search).get("mode") === "tutorial";
@@ -277,63 +281,75 @@ function triggerScreenShake() {
 // Create one enemy using the current wave rules.
 function spawnEnemy() {
   const threatRoll = Math.random();
-    let enemyType = "ball";
-    if (wave === 2) {
-      enemyType = threatRoll < 0.55 ? "fast-ball" : "stone";
-    } else if (wave === 3) {
-      if (threatRoll < 0.4) enemyType = "fast-ball";
-      else if (threatRoll < 0.75) enemyType = "stone";
-      else enemyType = "volatile";
-    } else if (wave >= 4) {
-      if (threatRoll < 0.25) enemyType = "fast-ball";
-      else if (threatRoll < 0.6) enemyType = "stone";
-      else enemyType = "volatile";
-    }
+  let enemyType = "ball";
+  if (wave === 2) {
+    if (threatRoll < 0.55) enemyType = "fast-ball";
+    else enemyType = "stone";
+  } else if (wave === 3) {
+    if (threatRoll < 0.4) enemyType = "fast-ball";
+    else if (threatRoll < 0.75) enemyType = "stone";
+    else enemyType = "volatile";
+  } else if (wave >= 4) {
+    if (threatRoll < 0.25) enemyType = "fast-ball";
+    else if (threatRoll < 0.6) enemyType = "stone";
+    else enemyType = "volatile";
+  }
 
-    let enemy;
-    if (enemyType === "stone") {
-      enemy = MeshBuilder.CreateBox(
-        `stone-${Date.now()}`,
-        { width: 0.85, height: 0.85, depth: 0.85 },
-        scene,
-      );
-    } else {
-      let diameter = 0.65;
-      if (enemyType === "volatile") diameter = 0.9;
-      enemy = MeshBuilder.CreateSphere(
-        `threat-${Date.now()}`,
-        { diameter, segments: 12 },
-        scene,
-      );
-    }
+  let enemy;
+  if (enemyType === "stone") {
+    enemy = MeshBuilder.CreateBox(
+      `stone-${Date.now()}`,
+      { width: 0.85, height: 0.85, depth: 0.85 },
+      scene,
+    );
+  } else {
+    let diameter = 0.65;
+    if (enemyType === "volatile") diameter = 0.9;
+    enemy = MeshBuilder.CreateSphere(
+      `threat-${Date.now()}`,
+      { diameter, segments: 12 },
+      scene,
+    );
+  }
   const edge = Math.floor(Math.random() * 4);
-  enemy.position =
-    edge === 0
-      ? new Vector3(-7, 0.38, Math.random() * 10 - 5)
-      : edge === 1
-        ? new Vector3(7, 0.38, Math.random() * 10 - 5)
-        : edge === 2
-          ? new Vector3(Math.random() * 14 - 7, 0.38, -5)
-          : new Vector3(Math.random() * 14 - 7, 0.38, 5);
-  enemy.material =
-    enemyType === "stone"
-      ? stoneMaterial
-      : enemyType === "volatile"
-        ? volatileMaterial
-        : threatMaterial;
-  const enemyStats = {
-    ball: { health: 1, speed: 0.8, damage: 8, points: 100 },
-    "fast-ball": { health: 1, speed: 1.35, damage: 10, points: 175 },
-    stone: { health: 3, speed: 0.55, damage: 14, points: 300 },
-    volatile: { health: 2, speed: 0.95, damage: 18, points: 450 },
-  }[enemyType];
+  if (edge === 0) {
+    enemy.position = new Vector3(-7, 0.38, Math.random() * 10 - 5);
+  } else if (edge === 1) {
+    enemy.position = new Vector3(7, 0.38, Math.random() * 10 - 5);
+  } else if (edge === 2) {
+    enemy.position = new Vector3(Math.random() * 14 - 7, 0.38, -5);
+  } else {
+    enemy.position = new Vector3(Math.random() * 14 - 7, 0.38, 5);
+  }
+
+  if (enemyType === "stone") enemy.material = stoneMaterial;
+  else if (enemyType === "volatile") enemy.material = volatileMaterial;
+  else enemy.material = threatMaterial;
+
+  let enemyStats = {
+    health: 1,
+    speed: 0.8,
+    damage: 8,
+    points: 100,
+  };
+  if (enemyType === "fast-ball") {
+    enemyStats = { health: 1, speed: 1.35, damage: 10, points: 175 };
+  } else if (enemyType === "stone") {
+    enemyStats = { health: 3, speed: 0.55, damage: 14, points: 300 };
+  } else if (enemyType === "volatile") {
+    enemyStats = { health: 2, speed: 0.95, damage: 18, points: 450 };
+  }
+
+  const enemySpeed = enemyStats.speed * difficultyConfig.enemySpeed;
+  const enemyDamage =
+    enemyStats.damage *
+    (difficultyConfig.enemyDamage / fallbackDifficulty.enemyDamage);
   enemies.push(
     new Enemy(enemy, enemyType, {
-      ...enemyStats,
-      speed: enemyStats.speed * difficultyConfig.enemySpeed,
-      damage:
-        enemyStats.damage *
-        (difficultyConfig.enemyDamage / fallbackDifficulty.enemyDamage),
+      health: enemyStats.health,
+      speed: enemySpeed,
+      damage: enemyDamage,
+      points: enemyStats.points,
     }),
   );
 }
@@ -357,12 +373,18 @@ function fire() {
   const weapon = currentWeapon();
   let firingDirection = aimDirection.clone();
   if (settings.aimAssist && enemies.length) {
-    const nearest = enemies.reduce((closest, enemy) =>
-      Vector3.Distance(enemy.mesh.position, player.position) <
-      Vector3.Distance(closest.mesh.position, player.position)
-        ? enemy
-        : closest,
-    );
+    let nearest = enemies[0];
+    enemies.forEach((enemy) => {
+      const enemyDistance = Vector3.Distance(
+        enemy.mesh.position,
+        player.position,
+      );
+      const nearestDistance = Vector3.Distance(
+        nearest.mesh.position,
+        player.position,
+      );
+      if (enemyDistance < nearestDistance) nearest = enemy;
+    });
     firingDirection = nearest.mesh.position
       .subtract(player.position)
       .normalize();
@@ -382,13 +404,14 @@ function fire() {
   fireCooldown = weapon.fireRate;
 }
 // End the run and save its result once.
-function endRun(completed = false) {
+function endRun(completed) {
+  if (completed === undefined) completed = false;
   if (!started) return;
   gameState.stop();
   started = false;
   spriteAnimator.frame(completed ? "celebrating" : "defeated");
   const user = getCurrentUser();
-  if (user)
+  if (user) {
     saveScore({
       username: user.username,
       score,
@@ -397,9 +420,12 @@ function endRun(completed = false) {
       accuracy: scoreManager.accuracy,
       date: new Date().toISOString(),
     });
-  message.textContent = user
-    ? `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Your result is logged.`
-    : `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Log in to save it.`;
+  }
+  if (user) {
+    message.textContent = `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Your result is logged.`;
+  } else {
+    message.textContent = `Defence complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} cleared. Log in to save it.`;
+  }
   let highestLevel = 1;
   if (user && user.progress && user.progress.highestLevel) {
     highestLevel = user.progress.highestLevel;
@@ -438,9 +464,10 @@ async function startRun() {
   applyLevelTheme();
   overlay.classList.add("hidden");
   startButton.textContent = "Start simulation ->";
-  if (tutorialMode)
+  if (tutorialMode) {
     message.textContent =
       "Training mode: practise movement, firing, and dodging in one short wave.";
+  }
   updateHud();
   renderer.setReducedEffects(settings.reducedEffects);
 }
@@ -498,18 +525,18 @@ scene.onBeforeRenderObservable.add(() => {
     camera.target.z = 0;
   }
   updateAimDirection();
-  const isMoving =
-    inputManager.isDown("up") ||
+  const isMoving = inputManager.isDown("up") ||
     inputManager.isDown("down") ||
     inputManager.isDown("left") ||
     inputManager.isDown("right");
-  const movement = new Vector3(
-    (inputManager.isDown("right") ? 1 : 0) -
-      (inputManager.isDown("left") ? 1 : 0),
-    0,
-    (inputManager.isDown("up") ? 1 : 0) - (inputManager.isDown("down") ? 1 : 0),
-  );
-  if (isMoving) playerController.move(movement.normalize(), move);
+  const movement = new Vector3(0, 0, 0);
+  if (inputManager.isDown("right")) movement.x += 1;
+  if (inputManager.isDown("left")) movement.x -= 1;
+  if (inputManager.isDown("up")) movement.z += 1;
+  if (inputManager.isDown("down")) movement.z -= 1;
+  if (isMoving) {
+    playerController.move(movement.normalize(), move);
+  }
   renderer.syncPlayer(playerController);
   if (isMoving && !spriteAnimating) {
     spriteAnimator.play("moving", true, 180);
@@ -520,11 +547,9 @@ scene.onBeforeRenderObservable.add(() => {
   }
   fireCooldown = Math.max(0, fireCooldown - delta);
   spawnTimer -= delta;
-  if (
-    spawnTimer <= 0 &&
-    enemiesSpawnedThisWave <
-      (tutorialMode ? tutorialEnemyTarget : waveEnemyTargets[wave - 1])
-  ) {
+  let enemyTarget = waveEnemyTargets[wave - 1];
+  if (tutorialMode) enemyTarget = tutorialEnemyTarget;
+  if (spawnTimer <= 0 && enemiesSpawnedThisWave < enemyTarget) {
     spawnEnemy();
     enemiesSpawnedThisWave += 1;
     spawnTimer = Math.max(0.45, 1.4 - wave * 0.15);
@@ -557,10 +582,14 @@ scene.onBeforeRenderObservable.add(() => {
       projectiles.splice(projectileIndex, 1);
       continue;
     }
-    const enemyIndex = enemies.findIndex(
-      (enemy) =>
-        Vector3.Distance(projectile.mesh.position, enemy.mesh.position) < 0.55,
-    );
+    let enemyIndex = -1;
+    enemies.forEach((enemy, index) => {
+      const distance = Vector3.Distance(
+        projectile.mesh.position,
+        enemy.mesh.position,
+      );
+      if (distance < 0.55 && enemyIndex === -1) enemyIndex = index;
+    });
     if (enemyIndex < 0) continue;
     const enemy = enemies[enemyIndex];
     projectile.destroy();
@@ -598,11 +627,9 @@ scene.onBeforeRenderObservable.add(() => {
       audioManager.waveComplete();
     }
   }
-  if (
-    enemiesSpawnedThisWave >=
-      (tutorialMode ? tutorialEnemyTarget : levelManager.target) &&
-    enemies.length === 0
-  ) {
+  let levelTarget = levelManager.target;
+  if (tutorialMode) levelTarget = tutorialEnemyTarget;
+  if (enemiesSpawnedThisWave >= levelTarget && enemies.length === 0) {
     if (wave < totalWaves) {
       wave += 1;
       levelManager.advance();
