@@ -153,56 +153,15 @@ const enemies = [];
 const projectiles = [];
 const powerUps = [];
 
-// Set the number of enemies required by each normal wave.
-const waveEnemyTargets = [16, 24, 32, 44];
-const weapons = [
-  {
-    name: "Pulse MK-I",
-    damage: 1,
-    fireRate: 0.2,
-    range: 10,
-    meterClass: "meter-damage",
-  },
-  {
-    name: "Pulse MK-II",
-    damage: 2,
-    fireRate: 0.16,
-    range: 13,
-    meterClass: "meter-fire",
-  },
-  {
-    name: "Nova MK-III",
-    damage: 3,
-    fireRate: 0.12,
-    range: 16,
-    meterClass: "meter-range",
-  },
-];
-const weaponModels = [
-  new Weapon(weapons[0]),
-  new Weapon(weapons[1]),
-  new Weapon(weapons[2]),
-];
-// Use this difficulty if the data file cannot be loaded.
-const fallbackDifficulty = {
-  enemySpeed: 1,
-  enemyDamage: 8,
-  scoreMultiplier: 1,
-};
-let difficultyConfig = fallbackDifficulty;
-// Name the four normal environments.
-const levelNames = [
-  "Training Ground",
-  "Desert Strike",
-  "Space Defence",
-  "Orbital Bastion",
-];
-const levelThemes = [
-  { sky: new Color3(0.055, 0.09, 0.1), floor: new Color3(0.12, 0.25, 0.27) },
-  { sky: new Color3(0.16, 0.1, 0.06), floor: new Color3(0.32, 0.22, 0.12) },
-  { sky: new Color3(0.025, 0.06, 0.12), floor: new Color3(0.08, 0.17, 0.25) },
-  { sky: new Color3(0.12, 0.025, 0.08), floor: new Color3(0.2, 0.08, 0.16) },
-];
+// These values are filled from the JSON files before the game can start.
+const waveEnemyTargets = [];
+const weapons = [];
+const weaponModels = [];
+const enemyData = {};
+let difficultyConfig = null;
+let baseEnemyDamage = 0;
+const levelNames = [];
+const levelThemes = [];
 const levelManager = new LevelManager(
   levelNames,
   levelThemes,
@@ -219,30 +178,82 @@ inputManager.setBinding("pause", settings.bindings.pause);
 const renderer = new Renderer3D(scene, arenaMaterial, defenderSprite);
 const tutorialMode =
   new URLSearchParams(window.location.search).get("mode") === "tutorial";
-const totalWaves = tutorialMode ? 1 : waveEnemyTargets.length;
+let totalWaves = 0;
 const tutorialEnemyTarget = 6;
-const difficultyConfigReady = fetch("data/difficulties.json")
-  .then((response) => (response.ok ? response.json() : []))
-  .then((difficulties) => {
+// Load all of the game information from the data folder.
+async function loadGameData() {
+  try {
+    const difficultiesResponse = await fetch("data/difficulties.json");
+    const weaponsResponse = await fetch("data/weapons.json");
+    const levelsResponse = await fetch("data/levels.json");
+    const enemiesResponse = await fetch("data/enemies.json");
+
+    if (
+      !difficultiesResponse.ok ||
+      !weaponsResponse.ok ||
+      !levelsResponse.ok ||
+      !enemiesResponse.ok
+    ) {
+      throw new Error("One or more data files could not be loaded.");
+    }
+
+    const difficulties = await difficultiesResponse.json();
+    const savedWeapons = await weaponsResponse.json();
+    const levels = await levelsResponse.json();
+    const savedEnemies = await enemiesResponse.json();
+
     let selected = null;
-    if (Array.isArray(difficulties)) {
-      for (let index = 0; index < difficulties.length; index += 1) {
-        if (difficulties[index].id === settings.difficulty) {
-          selected = difficulties[index];
-          break;
-        }
+    for (let index = 0; index < difficulties.length; index += 1) {
+      if (difficulties[index].id === settings.difficulty) {
+        selected = difficulties[index];
+        break;
       }
     }
-    if (selected) {
-      difficultyConfig = {
-        enemySpeed: selected.enemySpeed || fallbackDifficulty.enemySpeed,
-        enemyDamage: selected.enemyDamage || fallbackDifficulty.enemyDamage,
-        scoreMultiplier:
-          selected.scoreMultiplier || fallbackDifficulty.scoreMultiplier,
-      };
+    if (!selected) {
+      throw new Error("The selected difficulty is missing from difficulties.json");
     }
-  })
-  .catch(() => undefined);
+    for (let index = 0; index < difficulties.length; index += 1) {
+      if (difficulties[index].id === "standard") {
+        baseEnemyDamage = difficulties[index].enemyDamage;
+        break;
+      }
+    }
+    if (!baseEnemyDamage) {
+      throw new Error("The standard difficulty is missing from difficulties.json");
+    }
+
+    difficultyConfig = selected;
+
+    for (let index = 0; index < savedWeapons.length; index += 1) {
+      weapons.push(savedWeapons[index]);
+      weaponModels.push(new Weapon(savedWeapons[index]));
+    }
+    for (let index = 0; index < levels.length; index += 1) {
+      const level = levels[index];
+      levelNames.push(level.name);
+      waveEnemyTargets.push(level.enemyTarget);
+      levelThemes.push({
+        sky: new Color3(level.sky[0], level.sky[1], level.sky[2]),
+        floor: new Color3(level.floor[0], level.floor[1], level.floor[2]),
+      });
+    }
+    for (let index = 0; index < savedEnemies.length; index += 1) {
+      const enemy = savedEnemies[index];
+      enemyData[enemy.id] = enemy;
+    }
+
+    totalWaves = tutorialMode ? 1 : waveEnemyTargets.length;
+    if (weapons.length === 0 || levelNames.length === 0 || savedEnemies.length === 0) {
+      throw new Error("The game data files are empty");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Game data could not be loaded.", error);
+    return false;
+  }
+}
+const difficultyConfigReady = loadGameData();
 let aimDirection = new Vector3(0, 0, 1);
 let started = false;
 let paused = false;
@@ -342,24 +353,11 @@ function spawnEnemy() {
   else if (enemyType === "volatile") enemy.material = volatileMaterial;
   else enemy.material = threatMaterial;
 
-  let enemyStats = {
-    health: 1,
-    speed: 0.8,
-    damage: 8,
-    points: 100,
-  };
-  if (enemyType === "fast-ball") {
-    enemyStats = { health: 1, speed: 1.35, damage: 10, points: 175 };
-  } else if (enemyType === "stone") {
-    enemyStats = { health: 3, speed: 0.55, damage: 14, points: 300 };
-  } else if (enemyType === "volatile") {
-    enemyStats = { health: 2, speed: 0.95, damage: 18, points: 450 };
-  }
+  const enemyStats = enemyData[enemyType];
 
   const enemySpeed = enemyStats.speed * difficultyConfig.enemySpeed;
   const enemyDamage =
-    enemyStats.damage *
-    (difficultyConfig.enemyDamage / fallbackDifficulty.enemyDamage);
+    enemyStats.damage * (difficultyConfig.enemyDamage / baseEnemyDamage);
   enemies.push(
     new Enemy(enemy, enemyType, {
       health: enemyStats.health,
@@ -457,7 +455,11 @@ function endRun(completed) {
 // Start a new run from the first wave.
 async function startRun() {
   audioManager.unlock();
-  await difficultyConfigReady;
+  const dataLoaded = await difficultyConfigReady;
+  if (!dataLoaded) {
+    message.textContent = "The game data could not be loaded.";
+    return;
+  }
   const user = getCurrentUser();
   gameState.start();
   started = true;
@@ -500,7 +502,11 @@ async function startRun() {
 // Start the next wave after the player confirms deployment.
 async function continueToNextWave() {
   audioManager.unlock();
-  await difficultyConfigReady;
+  const dataLoaded = await difficultyConfigReady;
+  if (!dataLoaded) {
+    message.textContent = "The game data could not be loaded.";
+    return;
+  }
   gameState.start();
   started = true;
   paused = false;
@@ -688,5 +694,12 @@ document.querySelector("#mute-button").textContent = settings.muted
 document
   .querySelector("#mute-button")
   .setAttribute("aria-pressed", String(!settings.muted));
-applyLevelTheme();
-updateHud();
+difficultyConfigReady.then((dataLoaded) => {
+  if (dataLoaded) {
+    applyLevelTheme();
+    updateHud();
+  } else {
+    message.textContent = "The game data could not be loaded.";
+    startButton.disabled = true;
+  }
+});

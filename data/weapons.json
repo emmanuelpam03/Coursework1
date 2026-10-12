@@ -1,0 +1,5 @@
+[
+  {"id":"kilo-141","name":"Kilo 141","damage":1,"fireRate":0.2,"range":10,"meterClass":"meter-damage","appearance":"lime"},
+  {"id":"cbr4","name":"CBR4","damage":2,"fireRate":0.16,"range":13,"meterClass":"meter-fire","appearance":"coral"},
+  {"id":"hdr","name":"HDR","damage":3,"fireRate":0.12,"range":16,"meterClass":"meter-range","appearance":"white"}
+]

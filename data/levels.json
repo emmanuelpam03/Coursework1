@@ -1,0 +1,6 @@
+[
+  {"id":"training-ground","name":"Training Ground","enemyTarget":16,"environment":"training","sky":[0.055,0.09,0.1],"floor":[0.12,0.25,0.27]},
+  {"id":"hacienda","name":"Hacienda","enemyTarget":24,"environment":"desert","sky":[0.16,0.1,0.06],"floor":[0.32,0.22,0.12]},
+  {"id":"nuketown","name":"Nuketown","enemyTarget":32,"environment":"space","sky":[0.025,0.06,0.12],"floor":[0.08,0.17,0.25]},
+  {"id":"terminal","name":"Terminal","enemyTarget":44,"environment":"orbital","sky":[0.12,0.025,0.08],"floor":[0.2,0.08,0.16]}
+]

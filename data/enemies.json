@@ -1,0 +1,6 @@
+[
+  {"id":"ball","name":"Ball","health":1,"speed":1,"damage":8,"points":100},
+  {"id":"fast-ball","name":"Fast Ball","health":1,"speed":1.7,"damage":10,"points":175},
+  {"id":"stone","name":"Stone","health":3,"speed":0.65,"damage":14,"points":300},
+  {"id":"volatile","name":"Volatile Core","health":2,"speed":1.1,"damage":18,"points":450}
+]
