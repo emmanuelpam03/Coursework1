@@ -146,41 +146,40 @@ function setupRankings() {
     const selected = filter ? filter.value : "all";
     let source = getBestScores();
     if (view && view.value === "all") source = getAllScores();
-    const scores = source.filter(
-      (score) => {
-        return (
-          selected === "all" ||
-          String(score.difficulty || "standard").toLowerCase() === selected
-        );
-      },
-    );
+    const scores = [];
+    source.forEach((score) => {
+      const difficulty = String(score.difficulty || "standard").toLowerCase();
+      if (selected === "all" || difficulty === selected) {
+        scores.push(score);
+      }
+    });
     empty.hidden = scores.length > 0;
-    body.innerHTML = scores
-      .slice(0, 20)
-      .map((score, index) => {
-        const date = score.date ? new Date(score.date) : null;
-        let dateLabel = "-";
-        if (date && !Number.isNaN(date.valueOf())) {
-          dateLabel = date.toLocaleDateString();
-        }
-        let currentClass = "";
-        let currentLabel = "";
-        if (current && current.username === score.username) {
-          currentClass = "current";
-          currentLabel = " <small>(you)</small>";
-        }
-        const scoreNumber = Number(score.score || 0).toLocaleString();
-        const level = score.level || "-";
-        const difficulty = score.difficulty || "Standard";
-        return `<tr class="${currentClass}"><td>${String(index + 1).padStart(2, "0")}</td><td>${score.username}${currentLabel}</td><td>${scoreNumber}</td><td>${level}</td><td>${difficulty}</td><td>${dateLabel}</td></tr>`;
-      })
-      .join("");
+    body.innerHTML = "";
+    scores.slice(0, 20).forEach((score, index) => {
+      const date = score.date ? new Date(score.date) : null;
+      let dateLabel = "-";
+      if (date && !Number.isNaN(date.valueOf())) {
+        dateLabel = date.toLocaleDateString();
+      }
+
+      let currentClass = "";
+      let currentLabel = "";
+      if (current && current.username === score.username) {
+        currentClass = "current";
+        currentLabel = " <small>(you)</small>";
+      }
+
+      const scoreNumber = Number(score.score || 0).toLocaleString();
+      const level = score.level || "-";
+      const difficulty = score.difficulty || "Standard";
+      body.innerHTML += `<tr class="${currentClass}"><td>${String(index + 1).padStart(2, "0")}</td><td>${score.username}${currentLabel}</td><td>${scoreNumber}</td><td>${level}</td><td>${difficulty}</td><td>${dateLabel}</td></tr>`;
+    });
+
     const personalBest = document.querySelector("#personal-best");
     let own = null;
     if (current) {
-      own = getBestScores().find(
-        (score) => score.username === current.username,
-      );
+      const bestScores = getBestScores();
+      own = bestScores.find((score) => score.username === current.username);
     }
     if (personalBest) {
       if (own) {
@@ -220,13 +219,15 @@ function setupSettings() {
   const form = document.querySelector("#settings-form");
   if (!form) return;
   const settings = getSettings();
-  Object.entries(settings).forEach(([key, value]) => {
+  Object.keys(settings).forEach((key) => {
+    const value = settings[key];
     const field = form.elements.namedItem(key);
     if (!field || key === "bindings") return;
     if (field.type === "checkbox") field.checked = Boolean(value);
     else field.value = value;
   });
-  Object.entries(settings.bindings).forEach(([key, value]) => {
+  Object.keys(settings.bindings).forEach((key) => {
+    const value = settings.bindings[key];
     const field = form.elements.namedItem(key);
     if (field) field.value = value === " " ? "Space" : value;
   });

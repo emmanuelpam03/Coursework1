@@ -49,11 +49,13 @@ export function validateRegistration(data, users) {
 }
 
 export function showErrors(form, errors) {
-  form.querySelectorAll("[data-error-for]").forEach((element) => {
+  const errorElements = form.querySelectorAll("[data-error-for]");
+  errorElements.forEach((element) => {
     element.textContent = errors[element.dataset.errorFor] || "";
   });
 
-  form.querySelectorAll("[name]").forEach((field) => {
+  const fields = form.querySelectorAll("[name]");
+  fields.forEach((field) => {
     if (errors[field.name]) {
       field.setAttribute("aria-invalid", "true");
     } else {
