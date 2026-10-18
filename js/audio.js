@@ -13,7 +13,7 @@ export class AudioManager {
   unlock() {
     if (!this.context) {
       const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
+        window.AudioContext || window.AudioContext;
       if (!AudioContextClass) return;
       this.context = new AudioContextClass();
     }
