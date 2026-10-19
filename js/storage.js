@@ -1,7 +1,11 @@
+// This file is the small data layer for the coursework.
+// It saves users, the current login, and settings in localStorage.
+
 const USERS_KEY = "arena-defender-users";
 const SESSION_KEY = "arena-defender-session";
 const SETTINGS_KEY = "arena-defender-settings";
 
+// These values are used when a setting has not been saved yet.
 const DEFAULT_SETTINGS = {
   difficulty: "standard",
   masterVolume: 0.08,
@@ -23,94 +27,109 @@ const DEFAULT_SETTINGS = {
   },
 };
 
+// Read JSON data from localStorage.
+// Invalid or missing data is replaced by the supplied default value.
 function read(key, defaultValue) {
   try {
-    const value = window.localStorage.getItem(key);
-    return value ? JSON.parse(value) : defaultValue;
+    const savedValue = window.localStorage.getItem(key);
+    return savedValue ? JSON.parse(savedValue) : defaultValue;
   } catch {
     return defaultValue;
   }
 }
 
+// Convert a JavaScript value into JSON and save it.
 function save(key, value) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
+function isObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNumber(value) {
+  return Number.isFinite(Number(value));
+}
+
+function limitVolume(value, fallback) {
+  if (!isNumber(value)) return fallback;
+  return Math.max(0, Math.min(1, Number(value)));
+}
+
+// Keep only the score fields used by the application.
 function cleanScore(score) {
-  if (!score || typeof score !== "object" || Array.isArray(score)) {
-    return null;
-  }
+  if (!isObject(score)) return null;
 
   return {
-    score: Number.isFinite(Number(score.score)) ? Number(score.score) : 0,
-    level: Number.isFinite(Number(score.level)) ? Number(score.level) : 1,
+    score: isNumber(score.score) ? Number(score.score) : 0,
+    level: isNumber(score.level) ? Number(score.level) : 1,
     difficulty:
       typeof score.difficulty === "string" ? score.difficulty : "standard",
-    accuracy: Number.isFinite(Number(score.accuracy))
-      ? Number(score.accuracy)
-      : 0,
+    accuracy: isNumber(score.accuracy) ? Number(score.accuracy) : 0,
     date: typeof score.date === "string" ? score.date : "",
   };
 }
 
-function cleanUser(user) {
-  if (!user || typeof user !== "object" || Array.isArray(user)) return null;
-  if (typeof user.username !== "string" || !user.username) return null;
+function cleanScores(scores) {
+  const validScores = [];
 
-  const progress =
-    user.progress &&
-    typeof user.progress === "object" &&
-    !Array.isArray(user.progress)
-      ? user.progress
-      : {};
-  const scores = Array.isArray(user.scores) ? user.scores : [];
+  for (const score of scores) {
+    const clean = cleanScore(score);
+    if (clean) validScores.push(clean);
+  }
 
-  user.username = String(user.username);
-  user.email = typeof user.email === "string" ? user.email : "";
-  user.progress = progress;
-  user.progress.highestLevel = Math.max(
-    1,
-    Number(progress.highestLevel) || 1,
-  );
-  user.progress.weaponLevel = Math.max(0, Number(progress.weaponLevel) || 0);
-  user.scores = cleanScores(scores);
-  return user;
+  return validScores;
 }
 
-function cleanScores(scores) {
-  const clean = [];
-  for (let index = 0; index < scores.length; index += 1) {
-    const score = cleanScore(scores[index]);
-    if (score) clean.push(score);
+// Validate one user and return a safe copy.
+function cleanUser(user) {
+  if (!isObject(user) || typeof user.username !== "string" || !user.username) {
+    return null;
   }
-  return clean;
+
+  const progress = isObject(user.progress) ? { ...user.progress } : {};
+  progress.highestLevel = Math.max(1, Number(progress.highestLevel) || 1);
+  progress.weaponLevel = Math.max(0, Number(progress.weaponLevel) || 0);
+
+  return {
+    ...user,
+    username: String(user.username),
+    email: typeof user.email === "string" ? user.email : "",
+    progress,
+    scores: cleanScores(Array.isArray(user.scores) ? user.scores : []),
+  };
 }
 
 export function getUsers() {
-  const users = read(USERS_KEY, []);
-  if (!Array.isArray(users)) return [];
-  const cleanUsers = [];
-  for (let index = 0; index < users.length; index += 1) {
-    const user = cleanUser(users[index]);
-    if (user) cleanUsers.push(user);
+  const savedUsers = read(USERS_KEY, []);
+  if (!Array.isArray(savedUsers)) return [];
+
+  const users = [];
+  for (const savedUser of savedUsers) {
+    const user = cleanUser(savedUser);
+    if (user) users.push(user);
   }
-  return cleanUsers;
+  return users;
 }
 
 export function saveUsers(users) {
   const cleanUsers = [];
+
   if (Array.isArray(users)) {
-    for (let index = 0; index < users.length; index += 1) {
-      const user = cleanUser(users[index]);
-      if (user) cleanUsers.push(user);
+    for (const user of users) {
+      const clean = cleanUser(user);
+      if (clean) cleanUsers.push(clean);
     }
   }
+
   save(USERS_KEY, cleanUsers);
 }
 
 export function getSession() {
   const session = read(SESSION_KEY, null);
-  if (!session || typeof session.username !== "string") return null;
+  if (!isObject(session) || typeof session.username !== "string") {
+    return null;
+  }
   return { username: session.username };
 }
 
@@ -123,163 +142,132 @@ export function clearSession() {
 }
 
 export function findUser(identifier) {
-  const search = String(identifier || "").trim().toLowerCase();
-  const users = getUsers();
-  for (let index = 0; index < users.length; index += 1) {
-    const user = users[index];
-    if (
-      user.username.toLowerCase() === search ||
-      user.email.toLowerCase() === search
-    ) {
-      return user;
-    }
+  const searchText = String(identifier || "").trim().toLowerCase();
+
+  for (const user of getUsers()) {
+    const usernameMatches = user.username.toLowerCase() === searchText;
+    const emailMatches = user.email.toLowerCase() === searchText;
+    if (usernameMatches || emailMatches) return user;
   }
+
   return null;
 }
 
 export function getCurrentUser() {
   const session = getSession();
   if (!session) return null;
-  const users = getUsers();
-  for (let index = 0; index < users.length; index += 1) {
-    if (users[index].username === session.username) return users[index];
+
+  for (const user of getUsers()) {
+    if (user.username === session.username) return user;
   }
+
   return null;
+}
+
+function copyDefaultSettings() {
+  return {
+    ...DEFAULT_SETTINGS,
+    bindings: { ...DEFAULT_SETTINGS.bindings },
+  };
+}
+
+function copyBindings(bindings) {
+  const result = { ...DEFAULT_SETTINGS.bindings };
+  if (!isObject(bindings)) return result;
+
+  for (const action of Object.keys(result)) {
+    if (bindings[action]) result[action] = bindings[action];
+  }
+  return result;
 }
 
 export function getSettings() {
   const saved = read(SETTINGS_KEY, {});
-  const settings =
-    saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  const settings = isObject(saved) ? saved : {};
+  const result = copyDefaultSettings();
 
-  const result = {
-    difficulty: DEFAULT_SETTINGS.difficulty,
-    masterVolume: DEFAULT_SETTINGS.masterVolume,
-    musicVolume: DEFAULT_SETTINGS.musicVolume,
-    effectsVolume: DEFAULT_SETTINGS.effectsVolume,
-    muted: DEFAULT_SETTINGS.muted,
-    highContrast: DEFAULT_SETTINGS.highContrast,
-    largeText: DEFAULT_SETTINGS.largeText,
-    reducedEffects: DEFAULT_SETTINGS.reducedEffects,
-    aimAssist: DEFAULT_SETTINGS.aimAssist,
-    screenShake: DEFAULT_SETTINGS.screenShake,
-    bindings: {
-      up: DEFAULT_SETTINGS.bindings.up,
-      down: DEFAULT_SETTINGS.bindings.down,
-      left: DEFAULT_SETTINGS.bindings.left,
-      right: DEFAULT_SETTINGS.bindings.right,
-      fire: DEFAULT_SETTINGS.bindings.fire,
-      pause: DEFAULT_SETTINGS.bindings.pause,
-    },
-  };
+  result.masterVolume = limitVolume(
+    settings.masterVolume,
+    DEFAULT_SETTINGS.masterVolume,
+  );
+  result.musicVolume = limitVolume(
+    settings.musicVolume,
+    DEFAULT_SETTINGS.musicVolume,
+  );
+  result.effectsVolume = limitVolume(
+    settings.effectsVolume,
+    DEFAULT_SETTINGS.effectsVolume,
+  );
 
-  let volume = Number(settings.masterVolume);
-  if (Number.isFinite(volume)) {
-    result.masterVolume = Math.max(0, Math.min(1, volume));
-  }
-  volume = Number(settings.musicVolume);
-  if (Number.isFinite(volume)) {
-    result.musicVolume = Math.max(0, Math.min(1, volume));
-  }
-  volume = Number(settings.effectsVolume);
-  if (Number.isFinite(volume)) {
-    result.effectsVolume = Math.max(0, Math.min(1, volume));
+  if (typeof settings.difficulty === "string") {
+    result.difficulty = settings.difficulty;
   }
 
-  if (typeof settings.difficulty !== "string") {
-    result.difficulty = DEFAULT_SETTINGS.difficulty;
-  }
-  if (typeof settings.muted !== "boolean") result.muted = false;
-  if (typeof settings.highContrast !== "boolean") result.highContrast = false;
-  if (typeof settings.largeText !== "boolean") result.largeText = false;
-  if (typeof settings.reducedEffects !== "boolean") {
-    result.reducedEffects = false;
-  }
-  if (typeof settings.aimAssist !== "boolean") result.aimAssist = false;
-  if (typeof settings.screenShake !== "boolean") result.screenShake = true;
-  if (typeof settings.bindings === "object" && !Array.isArray(settings.bindings)) {
-    if (settings.bindings.up) result.bindings.up = settings.bindings.up;
-    if (settings.bindings.down) result.bindings.down = settings.bindings.down;
-    if (settings.bindings.left) result.bindings.left = settings.bindings.left;
-    if (settings.bindings.right) result.bindings.right = settings.bindings.right;
-    if (settings.bindings.fire) result.bindings.fire = settings.bindings.fire;
-    if (settings.bindings.pause) result.bindings.pause = settings.bindings.pause;
+  const booleanSettings = [
+    "muted",
+    "highContrast",
+    "largeText",
+    "reducedEffects",
+    "aimAssist",
+    "screenShake",
+  ];
+  for (const settingName of booleanSettings) {
+    if (typeof settings[settingName] === "boolean") {
+      result[settingName] = settings[settingName];
+    }
   }
 
+  result.bindings = copyBindings(settings.bindings);
   return result;
 }
 
 export function saveSettings(settings) {
   const current = getSettings();
-  settings = settings && typeof settings === "object" ? settings : {};
-
+  const changes = isObject(settings) ? settings : {};
   const newSettings = {
-    difficulty: settings.difficulty || current.difficulty,
-    masterVolume: current.masterVolume,
-    musicVolume: current.musicVolume,
-    effectsVolume: current.effectsVolume,
-    muted: settings.muted,
-    highContrast: settings.highContrast,
-    largeText: settings.largeText,
-    reducedEffects: settings.reducedEffects,
-    aimAssist: settings.aimAssist,
-    screenShake: settings.screenShake,
-    bindings: {
-      up: current.bindings.up,
-      down: current.bindings.down,
-      left: current.bindings.left,
-      right: current.bindings.right,
-      fire: current.bindings.fire,
-      pause: current.bindings.pause,
-    },
+    ...current,
+    difficulty: changes.difficulty || current.difficulty,
+    bindings: { ...current.bindings },
   };
-  if (settings.masterVolume !== undefined) {
-    newSettings.masterVolume = Number(settings.masterVolume);
+
+  if (changes.masterVolume !== undefined) {
+    newSettings.masterVolume = Number(changes.masterVolume);
   }
-  if (settings.musicVolume !== undefined) {
-    newSettings.musicVolume = Number(settings.musicVolume);
+  if (changes.musicVolume !== undefined) {
+    newSettings.musicVolume = Number(changes.musicVolume);
   }
-  if (settings.effectsVolume !== undefined) {
-    newSettings.effectsVolume = Number(settings.effectsVolume);
+  if (changes.effectsVolume !== undefined) {
+    newSettings.effectsVolume = Number(changes.effectsVolume);
   }
-  if (settings.muted === undefined) newSettings.muted = current.muted;
-  if (settings.highContrast === undefined) {
-    newSettings.highContrast = current.highContrast;
-  }
-  if (settings.largeText === undefined) newSettings.largeText = current.largeText;
-  if (settings.reducedEffects === undefined) {
-    newSettings.reducedEffects = current.reducedEffects;
-  }
-  if (settings.aimAssist === undefined) newSettings.aimAssist = current.aimAssist;
-  if (settings.screenShake === undefined) {
-    newSettings.screenShake = current.screenShake;
-  }
-  if (settings.bindings && typeof settings.bindings === "object") {
-    if (settings.bindings.up !== undefined) {
-      newSettings.bindings.up = settings.bindings.up;
-    }
-    if (settings.bindings.down !== undefined) {
-      newSettings.bindings.down = settings.bindings.down;
-    }
-    if (settings.bindings.left !== undefined) {
-      newSettings.bindings.left = settings.bindings.left;
-    }
-    if (settings.bindings.right !== undefined) {
-      newSettings.bindings.right = settings.bindings.right;
-    }
-    if (settings.bindings.fire !== undefined) {
-      newSettings.bindings.fire = settings.bindings.fire;
-    }
-    if (settings.bindings.pause !== undefined) {
-      newSettings.bindings.pause = settings.bindings.pause;
+
+  const booleanSettings = [
+    "muted",
+    "highContrast",
+    "largeText",
+    "reducedEffects",
+    "aimAssist",
+    "screenShake",
+  ];
+  for (const settingName of booleanSettings) {
+    if (changes[settingName] !== undefined) {
+      newSettings[settingName] = changes[settingName];
     }
   }
+
+  if (isObject(changes.bindings)) {
+    for (const action of Object.keys(newSettings.bindings)) {
+      if (changes.bindings[action] !== undefined) {
+        newSettings.bindings[action] = changes.bindings[action];
+      }
+    }
+  }
+
   save(SETTINGS_KEY, newSettings);
 }
 
 export function updateCurrentUserProgress(progress) {
   const user = getCurrentUser();
-  if (!user || !progress || typeof progress !== "object") return;
+  if (!user || !isObject(progress)) return;
 
   user.progress = {
     ...user.progress,
@@ -287,13 +275,13 @@ export function updateCurrentUserProgress(progress) {
   };
 
   const users = getUsers();
-  for (let index = 0; index < users.length; index += 1) {
-    if (users[index].username === user.username) {
-      users[index] = user;
-      break;
-    }
+  const userIndex = users.findIndex(
+    (savedUser) => savedUser.username === user.username,
+  );
+  if (userIndex !== -1) {
+    users[userIndex] = user;
+    saveUsers(users);
   }
-  saveUsers(users);
 }
 
 export function addUser(user) {
@@ -304,13 +292,7 @@ export function addUser(user) {
 
 export function saveScore(score) {
   const users = getUsers();
-  let user = null;
-  for (let index = 0; index < users.length; index += 1) {
-    if (users[index].username === score.username) {
-      user = users[index];
-      break;
-    }
-  }
+  const user = users.find((savedUser) => savedUser.username === score.username);
   if (!user) return;
 
   const clean = cleanScore(score);
@@ -326,38 +308,29 @@ export function saveScore(score) {
 
 export function getAllScores() {
   const scores = [];
-  const users = getUsers();
-  for (let userIndex = 0; userIndex < users.length; userIndex += 1) {
-    const user = users[userIndex];
-    for (let scoreIndex = 0; scoreIndex < user.scores.length; scoreIndex += 1) {
-      const score = user.scores[scoreIndex];
+
+  for (const user of getUsers()) {
+    for (const score of user.scores) {
       scores.push({ ...score, username: user.username });
     }
   }
 
-  return scores.sort((a, b) => b.score - a.score);
+  return scores.sort((first, second) => second.score - first.score);
 }
 
 export function getBestScores() {
-  const best = [];
-  const scores = getAllScores();
-  for (let index = 0; index < scores.length; index += 1) {
-    const score = scores[index];
-    let oldScore = null;
-    for (let bestIndex = 0; bestIndex < best.length; bestIndex += 1) {
-      if (best[bestIndex].username === score.username) {
-        oldScore = best[bestIndex];
-        break;
-      }
-    }
-    if (!oldScore) {
-      best.push(score);
-    } else if (score.score > oldScore.score) {
-      best[best.indexOf(oldScore)] = score;
+  const bestScoresByUser = new Map();
+
+  for (const score of getAllScores()) {
+    const oldScore = bestScoresByUser.get(score.username);
+    if (!oldScore || score.score > oldScore.score) {
+      bestScoresByUser.set(score.username, score);
     }
   }
 
-  return best.sort((a, b) => b.score - a.score);
+  return [...bestScoresByUser.values()].sort(
+    (first, second) => second.score - first.score,
+  );
 }
 
 export { DEFAULT_SETTINGS };
