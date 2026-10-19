@@ -385,25 +385,7 @@ function fire() {
   audioManager.fire();
   spriteAnimator.frame("firing");
   const weapon = currentWeapon();
-  let firingDirection = aimDirection.clone();
-  if (settings.aimAssist && enemies.length) {
-    let nearest = enemies[0];
-    for (let index = 0; index < enemies.length; index += 1) {
-      const enemy = enemies[index];
-      const enemyDistance = Vector3.Distance(
-        enemy.mesh.position,
-        player.position,
-      );
-      const nearestDistance = Vector3.Distance(
-        nearest.mesh.position,
-        player.position,
-      );
-      if (enemyDistance < nearestDistance) nearest = enemy;
-    }
-    firingDirection = nearest.mesh.position
-      .subtract(player.position)
-      .normalize();
-  }
+  const firingDirection = aimDirection.clone();
   const projectile = MeshBuilder.CreateSphere(
     `pulse-${Date.now()}`,
     { diameter: 0.16 },

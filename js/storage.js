@@ -14,7 +14,6 @@ const DEFAULT_SETTINGS = {
   highContrast: false,
   largeText: false,
   reducedEffects: false,
-  aimAssist: false,
   screenShake: true,
   bindings: {
     up: "w",
@@ -180,7 +179,6 @@ export function getSettings() {
     highContrast: DEFAULT_SETTINGS.highContrast,
     largeText: DEFAULT_SETTINGS.largeText,
     reducedEffects: DEFAULT_SETTINGS.reducedEffects,
-    aimAssist: DEFAULT_SETTINGS.aimAssist,
     screenShake: DEFAULT_SETTINGS.screenShake,
     bindings: {
       up: DEFAULT_SETTINGS.bindings.up,
@@ -219,9 +217,6 @@ export function getSettings() {
   }
   if (typeof settings.reducedEffects === "boolean") {
     result.reducedEffects = settings.reducedEffects;
-  }
-  if (typeof settings.aimAssist === "boolean") {
-    result.aimAssist = settings.aimAssist;
   }
   if (typeof settings.screenShake === "boolean") {
     result.screenShake = settings.screenShake;
@@ -278,9 +273,6 @@ export function saveSettings(settings) {
   }
   if (changes.reducedEffects !== undefined) {
     newSettings.reducedEffects = changes.reducedEffects;
-  }
-  if (changes.aimAssist !== undefined) {
-    newSettings.aimAssist = changes.aimAssist;
   }
   if (changes.screenShake !== undefined) {
     newSettings.screenShake = changes.screenShake;

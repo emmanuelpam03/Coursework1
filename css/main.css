@@ -1126,10 +1126,7 @@ tr.current {
 /* Accessibility settings
    app.js adds these classes to the body when the user changes settings. */
 body.large-text {
-  font-size: 17px;
-}
-body.large-text h1 {
-  font-size: clamp(5rem, 11vw, 10rem);
+  zoom: 1.15;
 }
 body.high-contrast {
   --paper: #ffffff;
@@ -1189,6 +1186,10 @@ body.reduced-effects *::after {
   min-height: 24px;
   color: #63821b;
   font-size: 12px;
+}
+.settings-grid button {
+  grid-column: 1 / -1;
+  justify-self: center;
 }
 .ranking-filter {
   display: inline-flex;

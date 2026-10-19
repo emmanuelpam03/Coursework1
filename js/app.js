@@ -67,8 +67,7 @@ function setupRegistration() {
       lastName: form.elements.lastName.value,
       dateOfBirth: form.elements.dateOfBirth.value,
       country: form.elements.country.value,
-      preferredDifficulty: form.elements.preferredDifficulty.value,
-      terms: form.elements.terms.checked,
+      terms: form.querySelector('[name="terms"]').checked,
     };
     const errors = validateRegistration(data, getUsers());
     showErrors(form, errors);
@@ -95,7 +94,7 @@ function setupRegistration() {
       lastName: data.lastName.trim(),
       dateOfBirth: data.dateOfBirth,
       country: data.country,
-      preferredDifficulty: data.preferredDifficulty || "standard",
+      preferredDifficulty: "standard",
       registeredAt: new Date().toISOString(),
       progress: { highestLevel: 1, tutorialComplete: false },
       scores: [],
@@ -249,46 +248,42 @@ function setupSettings() {
   const form = document.querySelector("#settings-form");
   if (!form) return;
   const settings = getSettings();
-  form.elements.difficulty.value = settings.difficulty;
-  form.elements.masterVolume.value = settings.masterVolume;
-  form.elements.musicVolume.value = settings.musicVolume;
-  form.elements.effectsVolume.value = settings.effectsVolume;
-  form.elements.muted.checked = settings.muted;
-  form.elements.highContrast.checked = settings.highContrast;
-  form.elements.largeText.checked = settings.largeText;
-  form.elements.reducedEffects.checked = settings.reducedEffects;
-  form.elements.aimAssist.checked = settings.aimAssist;
-  form.elements.screenShake.checked = settings.screenShake;
-  form.elements.up.value = settings.bindings.up;
-  form.elements.down.value = settings.bindings.down;
-  form.elements.left.value = settings.bindings.left;
-  form.elements.right.value = settings.bindings.right;
-  form.elements.fire.value =
+  form.querySelector('[name="difficulty"]').value = settings.difficulty;
+  form.querySelector('[name="masterVolume"]').value = settings.masterVolume;
+  form.querySelector('[name="musicVolume"]').value = settings.musicVolume;
+  form.querySelector('[name="effectsVolume"]').value = settings.effectsVolume;
+  form.querySelector('[name="highContrast"]').checked = settings.highContrast;
+  form.querySelector('[name="largeText"]').checked = settings.largeText;
+  form.querySelector('[name="reducedEffects"]').checked =
+    settings.reducedEffects;
+  form.querySelector('[name="screenShake"]').checked = settings.screenShake;
+  form.querySelector('[name="up"]').value = settings.bindings.up;
+  form.querySelector('[name="down"]').value = settings.bindings.down;
+  form.querySelector('[name="left"]').value = settings.bindings.left;
+  form.querySelector('[name="right"]').value = settings.bindings.right;
+  form.querySelector('[name="fire"]').value =
     settings.bindings.fire === " " ? "Space" : settings.bindings.fire;
-  form.elements.pause.value = settings.bindings.pause;
+  form.querySelector('[name="pause"]').value = settings.bindings.pause;
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = {
-      difficulty: form.elements.difficulty.value,
-      masterVolume: form.elements.masterVolume.value,
-      musicVolume: form.elements.musicVolume.value,
-      effectsVolume: form.elements.effectsVolume.value,
-      muted: form.elements.muted.checked,
-      highContrast: form.elements.highContrast.checked,
-      largeText: form.elements.largeText.checked,
-      reducedEffects: form.elements.reducedEffects.checked,
-      aimAssist: form.elements.aimAssist.checked,
-      screenShake: form.elements.screenShake.checked,
+      difficulty: form.querySelector('[name="difficulty"]').value,
+      masterVolume: form.querySelector('[name="masterVolume"]').value,
+      musicVolume: form.querySelector('[name="musicVolume"]').value,
+      effectsVolume: form.querySelector('[name="effectsVolume"]').value,
+      highContrast: form.querySelector('[name="highContrast"]').checked,
+      largeText: form.querySelector('[name="largeText"]').checked,
+      reducedEffects: form.querySelector('[name="reducedEffects"]').checked,
+      screenShake: form.querySelector('[name="screenShake"]').checked,
       bindings: {
-        up: form.elements.up.value,
-        down: form.elements.down.value,
-        left: form.elements.left.value,
-        right: form.elements.right.value,
-        fire:
-          form.elements.fire.value === "Space"
+        up: form.querySelector('[name="up"]').value,
+        down: form.querySelector('[name="down"]').value,
+        left: form.querySelector('[name="left"]').value,
+        right: form.querySelector('[name="right"]').value,
+        fire: form.querySelector('[name="fire"]').value === "Space"
             ? " "
-            : form.elements.fire.value,
-        pause: form.elements.pause.value,
+            : form.querySelector('[name="fire"]').value,
+        pause: form.querySelector('[name="pause"]').value,
       },
     };
     data.masterVolume = Number(data.masterVolume);
