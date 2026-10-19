@@ -43,61 +43,57 @@ function save(key, value) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-function isObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function isNumber(value) {
-  return Number.isFinite(Number(value));
-}
-
-function limitVolume(value, fallback) {
-  if (!isNumber(value)) return fallback;
-  return Math.max(0, Math.min(1, Number(value)));
-}
-
 // Keep only the score fields used by the application.
 function cleanScore(score) {
-  if (!isObject(score)) return null;
+  if (!score || typeof score !== "object" || Array.isArray(score)) {
+    return null;
+  }
 
   return {
-    score: isNumber(score.score) ? Number(score.score) : 0,
-    level: isNumber(score.level) ? Number(score.level) : 1,
+    score: Number.isFinite(Number(score.score)) ? Number(score.score) : 0,
+    level: Number.isFinite(Number(score.level)) ? Number(score.level) : 1,
     difficulty:
       typeof score.difficulty === "string" ? score.difficulty : "standard",
-    accuracy: isNumber(score.accuracy) ? Number(score.accuracy) : 0,
+    accuracy: Number.isFinite(Number(score.accuracy))
+      ? Number(score.accuracy)
+      : 0,
     date: typeof score.date === "string" ? score.date : "",
   };
 }
 
-function cleanScores(scores) {
-  const validScores = [];
-
-  for (const score of scores) {
-    const clean = cleanScore(score);
-    if (clean) validScores.push(clean);
-  }
-
-  return validScores;
-}
-
-// Validate one user and return a safe copy.
+// Validate one user and return the cleaned user.
 function cleanUser(user) {
-  if (!isObject(user) || typeof user.username !== "string" || !user.username) {
+  if (
+    !user ||
+    typeof user !== "object" ||
+    Array.isArray(user) ||
+    typeof user.username !== "string" ||
+    !user.username
+  ) {
     return null;
   }
 
-  const progress = isObject(user.progress) ? { ...user.progress } : {};
+  const progress =
+    user.progress &&
+    typeof user.progress === "object" &&
+    !Array.isArray(user.progress)
+      ? user.progress
+      : {};
   progress.highestLevel = Math.max(1, Number(progress.highestLevel) || 1);
   progress.weaponLevel = Math.max(0, Number(progress.weaponLevel) || 0);
 
-  return {
-    ...user,
-    username: String(user.username),
-    email: typeof user.email === "string" ? user.email : "",
-    progress,
-    scores: cleanScores(Array.isArray(user.scores) ? user.scores : []),
-  };
+  user.username = String(user.username);
+  user.email = typeof user.email === "string" ? user.email : "";
+  user.progress = progress;
+
+  const scores = Array.isArray(user.scores) ? user.scores : [];
+  user.scores = [];
+  for (const score of scores) {
+    const clean = cleanScore(score);
+    if (clean) user.scores.push(clean);
+  }
+
+  return user;
 }
 
 export function getUsers() {
@@ -127,7 +123,12 @@ export function saveUsers(users) {
 
 export function getSession() {
   const session = read(SESSION_KEY, null);
-  if (!isObject(session) || typeof session.username !== "string") {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    Array.isArray(session) ||
+    typeof session.username !== "string"
+  ) {
     return null;
   }
   return { username: session.username };
@@ -164,66 +165,95 @@ export function getCurrentUser() {
   return null;
 }
 
-function copyDefaultSettings() {
-  return {
-    ...DEFAULT_SETTINGS,
-    bindings: { ...DEFAULT_SETTINGS.bindings },
-  };
-}
-
-function copyBindings(bindings) {
-  const result = { ...DEFAULT_SETTINGS.bindings };
-  if (!isObject(bindings)) return result;
-
-  for (const action of Object.keys(result)) {
-    if (bindings[action]) result[action] = bindings[action];
-  }
-  return result;
-}
-
 export function getSettings() {
   const saved = read(SETTINGS_KEY, {});
-  const settings = isObject(saved) ? saved : {};
-  const result = copyDefaultSettings();
+  const settings =
+    saved && typeof saved === "object" && !Array.isArray(saved)
+      ? saved
+      : {};
 
-  result.masterVolume = limitVolume(
-    settings.masterVolume,
-    DEFAULT_SETTINGS.masterVolume,
-  );
-  result.musicVolume = limitVolume(
-    settings.musicVolume,
-    DEFAULT_SETTINGS.musicVolume,
-  );
-  result.effectsVolume = limitVolume(
-    settings.effectsVolume,
-    DEFAULT_SETTINGS.effectsVolume,
-  );
+  const result = {
+    difficulty: DEFAULT_SETTINGS.difficulty,
+    masterVolume: DEFAULT_SETTINGS.masterVolume,
+    musicVolume: DEFAULT_SETTINGS.musicVolume,
+    effectsVolume: DEFAULT_SETTINGS.effectsVolume,
+    muted: DEFAULT_SETTINGS.muted,
+    highContrast: DEFAULT_SETTINGS.highContrast,
+    largeText: DEFAULT_SETTINGS.largeText,
+    reducedEffects: DEFAULT_SETTINGS.reducedEffects,
+    aimAssist: DEFAULT_SETTINGS.aimAssist,
+    screenShake: DEFAULT_SETTINGS.screenShake,
+    bindings: {
+      up: DEFAULT_SETTINGS.bindings.up,
+      down: DEFAULT_SETTINGS.bindings.down,
+      left: DEFAULT_SETTINGS.bindings.left,
+      right: DEFAULT_SETTINGS.bindings.right,
+      fire: DEFAULT_SETTINGS.bindings.fire,
+      pause: DEFAULT_SETTINGS.bindings.pause,
+    },
+  };
+
+  let volume = Number(settings.masterVolume);
+  if (Number.isFinite(volume)) {
+    result.masterVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  volume = Number(settings.musicVolume);
+  if (Number.isFinite(volume)) {
+    result.musicVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  volume = Number(settings.effectsVolume);
+  if (Number.isFinite(volume)) {
+    result.effectsVolume = Math.max(0, Math.min(1, volume));
+  }
 
   if (typeof settings.difficulty === "string") {
     result.difficulty = settings.difficulty;
   }
+  if (typeof settings.muted === "boolean") result.muted = settings.muted;
+  if (typeof settings.highContrast === "boolean") {
+    result.highContrast = settings.highContrast;
+  }
+  if (typeof settings.largeText === "boolean") {
+    result.largeText = settings.largeText;
+  }
+  if (typeof settings.reducedEffects === "boolean") {
+    result.reducedEffects = settings.reducedEffects;
+  }
+  if (typeof settings.aimAssist === "boolean") {
+    result.aimAssist = settings.aimAssist;
+  }
+  if (typeof settings.screenShake === "boolean") {
+    result.screenShake = settings.screenShake;
+  }
 
-  const booleanSettings = [
-    "muted",
-    "highContrast",
-    "largeText",
-    "reducedEffects",
-    "aimAssist",
-    "screenShake",
-  ];
-  for (const settingName of booleanSettings) {
-    if (typeof settings[settingName] === "boolean") {
-      result[settingName] = settings[settingName];
+  if (
+    settings.bindings &&
+    typeof settings.bindings === "object" &&
+    !Array.isArray(settings.bindings)
+  ) {
+    if (settings.bindings.up) result.bindings.up = settings.bindings.up;
+    if (settings.bindings.down) result.bindings.down = settings.bindings.down;
+    if (settings.bindings.left) result.bindings.left = settings.bindings.left;
+    if (settings.bindings.right) {
+      result.bindings.right = settings.bindings.right;
+    }
+    if (settings.bindings.fire) result.bindings.fire = settings.bindings.fire;
+    if (settings.bindings.pause) {
+      result.bindings.pause = settings.bindings.pause;
     }
   }
 
-  result.bindings = copyBindings(settings.bindings);
   return result;
 }
 
 export function saveSettings(settings) {
   const current = getSettings();
-  const changes = isObject(settings) ? settings : {};
+  const changes =
+    settings && typeof settings === "object" && !Array.isArray(settings)
+      ? settings
+      : {};
   const newSettings = {
     ...current,
     difficulty: changes.difficulty || current.difficulty,
@@ -240,25 +270,45 @@ export function saveSettings(settings) {
     newSettings.effectsVolume = Number(changes.effectsVolume);
   }
 
-  const booleanSettings = [
-    "muted",
-    "highContrast",
-    "largeText",
-    "reducedEffects",
-    "aimAssist",
-    "screenShake",
-  ];
-  for (const settingName of booleanSettings) {
-    if (changes[settingName] !== undefined) {
-      newSettings[settingName] = changes[settingName];
-    }
+  if (changes.muted !== undefined) newSettings.muted = changes.muted;
+  if (changes.highContrast !== undefined) {
+    newSettings.highContrast = changes.highContrast;
+  }
+  if (changes.largeText !== undefined) {
+    newSettings.largeText = changes.largeText;
+  }
+  if (changes.reducedEffects !== undefined) {
+    newSettings.reducedEffects = changes.reducedEffects;
+  }
+  if (changes.aimAssist !== undefined) {
+    newSettings.aimAssist = changes.aimAssist;
+  }
+  if (changes.screenShake !== undefined) {
+    newSettings.screenShake = changes.screenShake;
   }
 
-  if (isObject(changes.bindings)) {
-    for (const action of Object.keys(newSettings.bindings)) {
-      if (changes.bindings[action] !== undefined) {
-        newSettings.bindings[action] = changes.bindings[action];
-      }
+  if (
+    changes.bindings &&
+    typeof changes.bindings === "object" &&
+    !Array.isArray(changes.bindings)
+  ) {
+    if (changes.bindings.up !== undefined) {
+      newSettings.bindings.up = changes.bindings.up;
+    }
+    if (changes.bindings.down !== undefined) {
+      newSettings.bindings.down = changes.bindings.down;
+    }
+    if (changes.bindings.left !== undefined) {
+      newSettings.bindings.left = changes.bindings.left;
+    }
+    if (changes.bindings.right !== undefined) {
+      newSettings.bindings.right = changes.bindings.right;
+    }
+    if (changes.bindings.fire !== undefined) {
+      newSettings.bindings.fire = changes.bindings.fire;
+    }
+    if (changes.bindings.pause !== undefined) {
+      newSettings.bindings.pause = changes.bindings.pause;
     }
   }
 
@@ -267,7 +317,14 @@ export function saveSettings(settings) {
 
 export function updateCurrentUserProgress(progress) {
   const user = getCurrentUser();
-  if (!user || !isObject(progress)) return;
+  if (
+    !user ||
+    !progress ||
+    typeof progress !== "object" ||
+    Array.isArray(progress)
+  ) {
+    return;
+  }
 
   user.progress = {
     ...user.progress,
@@ -275,12 +332,12 @@ export function updateCurrentUserProgress(progress) {
   };
 
   const users = getUsers();
-  const userIndex = users.findIndex(
-    (savedUser) => savedUser.username === user.username,
-  );
-  if (userIndex !== -1) {
-    users[userIndex] = user;
-    saveUsers(users);
+  for (let index = 0; index < users.length; index += 1) {
+    if (users[index].username === user.username) {
+      users[index] = user;
+      saveUsers(users);
+      break;
+    }
   }
 }
 
@@ -292,7 +349,13 @@ export function addUser(user) {
 
 export function saveScore(score) {
   const users = getUsers();
-  const user = users.find((savedUser) => savedUser.username === score.username);
+  let user = null;
+  for (const savedUser of users) {
+    if (savedUser.username === score.username) {
+      user = savedUser;
+      break;
+    }
+  }
   if (!user) return;
 
   const clean = cleanScore(score);
@@ -319,18 +382,23 @@ export function getAllScores() {
 }
 
 export function getBestScores() {
-  const bestScoresByUser = new Map();
-
+  const bestScores = [];
   for (const score of getAllScores()) {
-    const oldScore = bestScoresByUser.get(score.username);
-    if (!oldScore || score.score > oldScore.score) {
-      bestScoresByUser.set(score.username, score);
+    let userAlreadyIncluded = false;
+
+    for (const bestScore of bestScores) {
+      if (bestScore.username === score.username) {
+        userAlreadyIncluded = true;
+        break;
+      }
+    }
+
+    if (!userAlreadyIncluded) {
+      bestScores.push(score);
     }
   }
 
-  return [...bestScoresByUser.values()].sort(
-    (first, second) => second.score - first.score,
-  );
+  return bestScores.sort((first, second) => second.score - first.score);
 }
 
 export { DEFAULT_SETTINGS };
