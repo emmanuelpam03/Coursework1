@@ -1,4 +1,3 @@
-// This file is the small data layer for the coursework.
 // It saves users, the current login, and settings in localStorage.
 
 const USERS_KEY = "arena-defender-users";

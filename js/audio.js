@@ -12,8 +12,7 @@ export class AudioManager {
   // Ask the browser to allow audio after user interaction.
   unlock() {
     if (!this.context) {
-      const AudioContextClass =
-        window.AudioContext || window.AudioContext;
+      const AudioContextClass = window.AudioContext;
       if (!AudioContextClass) return;
       this.context = new AudioContextClass();
     }
