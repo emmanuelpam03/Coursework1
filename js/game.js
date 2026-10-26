@@ -279,6 +279,11 @@ const loadoutName = document.querySelector("#loadout-name");
 const loadoutDamage = document.querySelector("#loadout-damage");
 const loadoutFire = document.querySelector("#loadout-fire");
 const loadoutRange = document.querySelector("#loadout-range");
+if (tutorialMode) {
+  startButton.textContent = "Start training ->";
+  message.textContent =
+    "Learn movement, firing, and dodging in one short training wave.";
+}
 // Return the player's current weapon.
 function currentWeapon() {
   return weaponModels[weaponLevel];
@@ -408,7 +413,7 @@ function endRun(completed) {
   started = false;
   spriteAnimator.frame(completed ? "celebrating" : "defeated");
   const user = getCurrentUser();
-  if (user) {
+  if (user && !tutorialMode) {
     saveScore({
       username: user.username,
       score,
@@ -418,8 +423,11 @@ function endRun(completed) {
       date: new Date().toISOString(),
     });
   }
-  if (user) {
+  if (user && !tutorialMode) {
     message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Your result is logged.`;
+  } else if (tutorialMode) {
+    message.textContent =
+      "Training complete. You can now play the full game, where your levels and upgrades are affected.";
   } else {
     message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Log in to save it.`;
   }
@@ -427,11 +435,16 @@ function endRun(completed) {
   if (user && user.progress && user.progress.highestLevel) {
     highestLevel = user.progress.highestLevel;
   }
-  updateCurrentUserProgress({
-    highestLevel: Math.max(wave, highestLevel),
-    weaponLevel,
-  });
-  overlay.querySelector(".button").textContent = "Run it again ->";
+  if (!tutorialMode) {
+    updateCurrentUserProgress({
+      highestLevel: Math.max(wave, highestLevel),
+      weaponLevel,
+    });
+  }
+  startButton.dataset.trainingComplete = String(tutorialMode);
+  overlay.querySelector(".button").textContent = tutorialMode
+    ? "Play the full game ->"
+    : "Run it again ->";
   overlay.classList.remove("hidden");
 }
 // Start a new run from the first wave.
@@ -474,6 +487,7 @@ async function startRun() {
   applyLevelTheme();
   overlay.classList.add("hidden");
   startButton.textContent = "Deploy now ->";
+  startButton.dataset.trainingComplete = "false";
   if (tutorialMode) {
     message.textContent =
       "Training deployment: practise movement, firing, and dodging in one short wave.";
@@ -519,6 +533,10 @@ inputManager.onPause = () => {
 };
 canvas.addEventListener("pointerdown", fire);
 startButton.addEventListener("click", () => {
+  if (tutorialMode && startButton.dataset.trainingComplete === "true") {
+    window.location.href = "game.html";
+    return;
+  }
   if (wave > 1 && enemiesSpawnedThisWave === 0) continueToNextWave();
   else startRun();
 });

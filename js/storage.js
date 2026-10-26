@@ -206,7 +206,8 @@ export function getSettings() {
   }
 
   if (typeof settings.difficulty === "string") {
-    result.difficulty = settings.difficulty;
+    result.difficulty =
+      settings.difficulty === "practice" ? "easy" : settings.difficulty;
   }
   if (typeof settings.muted === "boolean") result.muted = settings.muted;
   if (typeof settings.highContrast === "boolean") {
@@ -250,7 +251,10 @@ export function saveSettings(settings) {
       : {};
   const newSettings = {
     ...current,
-    difficulty: changes.difficulty || current.difficulty,
+    difficulty:
+      changes.difficulty === "practice"
+        ? "easy"
+        : changes.difficulty || current.difficulty,
     bindings: { ...current.bindings },
   };
 

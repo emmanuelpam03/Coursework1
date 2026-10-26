@@ -1,5 +1,5 @@
 [
-  {"id":"practice","name":"Practice","enemySpeed":0.7,"enemyDamage":4,"scoreMultiplier":0.75},
+  {"id":"easy","name":"Easy","enemySpeed":0.7,"enemyDamage":4,"scoreMultiplier":0.75},
   {"id":"standard","name":"Standard","enemySpeed":1,"enemyDamage":8,"scoreMultiplier":1},
   {"id":"hard","name":"Hard","enemySpeed":1.3,"enemyDamage":12,"scoreMultiplier":1.5}
 ]
