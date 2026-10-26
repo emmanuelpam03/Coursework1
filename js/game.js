@@ -427,11 +427,13 @@ function endRun(completed) {
       date: new Date().toISOString(),
     });
   }
-  if (user && !tutorialMode) {
-    message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Your result is logged.`;
+  if (!completed) {
+    message.textContent = `Mission failed. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} reached.`;
   } else if (tutorialMode) {
     message.textContent =
       "Training complete. You can now play the full game, where your levels and upgrades are affected.";
+  } else if (user) {
+    message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Your result is logged.`;
   } else {
     message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Log in to save it.`;
   }
