@@ -1128,6 +1128,17 @@ tr.current {
 body.large-text {
   zoom: 1.15;
 }
+body[data-page="game"].large-text {
+  zoom: 1;
+}
+body[data-page="game"].large-text .hud-label,
+body[data-page="game"].large-text .hud-hint,
+body[data-page="game"].large-text .hud-pause {
+  font-size: 12px;
+}
+body[data-page="game"].large-text .hud-top strong {
+  font-size: 34px;
+}
 body.high-contrast {
   --paper: #ffffff;
   --paper-deep: #f3f3f3;
