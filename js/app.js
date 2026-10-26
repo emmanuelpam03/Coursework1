@@ -14,11 +14,13 @@ import { showErrors, validateRegistration } from "./validation.js";
 
 const page = document.body.dataset.page;
 
+// Keep the home page at the top when it is opened.
 if (page === "home") {
   window.history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
 }
 
+// Apply accessibility settings to the page.
 function applySettings() {
   const settings = getSettings();
   document.body.classList.toggle("high-contrast", settings.highContrast);
@@ -26,6 +28,7 @@ function applySettings() {
   document.body.classList.toggle("reduced-effects", settings.reducedEffects);
 }
 
+// Set up the menu and login links.
 function setupNavigation() {
   const toggle = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".site-nav");
@@ -53,6 +56,7 @@ function setupNavigation() {
   }
 }
 
+// Handle account creation.
 function setupRegistration() {
   const form = document.querySelector("#register-form");
   if (!form) return;
@@ -109,6 +113,7 @@ function setupRegistration() {
   });
 }
 
+// Handle user login.
 function setupLogin() {
   const form = document.querySelector("#login-form");
   if (!form) return;
@@ -146,6 +151,7 @@ function setupLogin() {
   });
 }
 
+// Render the score table and filters.
 function setupRankings() {
   const body = document.querySelector("#ranking-body");
   const empty = document.querySelector("#ranking-empty");
@@ -214,6 +220,7 @@ function setupRankings() {
   render();
 }
 
+// Fill the profile page with the current user's details.
 function setupProfile() {
   const user = getCurrentUser();
   const name = document.querySelector("#profile-name");
@@ -244,6 +251,7 @@ function setupProfile() {
   action.href = "game.html";
 }
 
+// Load and save the user's game settings.
 function setupSettings() {
   const form = document.querySelector("#settings-form");
   if (!form) return;

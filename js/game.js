@@ -39,6 +39,7 @@ const settings = getSettings();
 document.body.classList.toggle("high-contrast", settings.highContrast);
 document.body.classList.toggle("large-text", settings.largeText);
 document.body.classList.toggle("reduced-effects", settings.reducedEffects);
+// Set up sound effects using the saved audio settings.
 const audioManager = new AudioManager(settings);
 const gameState = new Game();
 

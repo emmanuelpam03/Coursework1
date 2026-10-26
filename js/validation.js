@@ -1,3 +1,4 @@
+// Check registration details before creating an account.
 export function validateRegistration(data, users) {
   const errors = {};
 
@@ -49,6 +50,7 @@ export function validateRegistration(data, users) {
   return errors;
 }
 
+// Show validation messages and mark invalid fields.
 export function showErrors(form, errors) {
   const errorElements = form.querySelectorAll("[data-error-for]");
   for (let index = 0; index < errorElements.length; index += 1) {
