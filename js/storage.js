@@ -8,7 +8,6 @@ const SETTINGS_KEY = "arena-defender-settings";
 const DEFAULT_SETTINGS = {
   difficulty: "standard",
   masterVolume: 0.08,
-  musicVolume: 0.05,
   effectsVolume: 0.08,
   muted: false,
   highContrast: false,
@@ -173,7 +172,6 @@ export function getSettings() {
   const result = {
     difficulty: DEFAULT_SETTINGS.difficulty,
     masterVolume: DEFAULT_SETTINGS.masterVolume,
-    musicVolume: DEFAULT_SETTINGS.musicVolume,
     effectsVolume: DEFAULT_SETTINGS.effectsVolume,
     muted: DEFAULT_SETTINGS.muted,
     highContrast: DEFAULT_SETTINGS.highContrast,
@@ -193,11 +191,6 @@ export function getSettings() {
   let volume = Number(settings.masterVolume);
   if (Number.isFinite(volume)) {
     result.masterVolume = Math.max(0, Math.min(1, volume));
-  }
-
-  volume = Number(settings.musicVolume);
-  if (Number.isFinite(volume)) {
-    result.musicVolume = Math.max(0, Math.min(1, volume));
   }
 
   volume = Number(settings.effectsVolume);
@@ -260,9 +253,6 @@ export function saveSettings(settings) {
 
   if (changes.masterVolume !== undefined) {
     newSettings.masterVolume = Number(changes.masterVolume);
-  }
-  if (changes.musicVolume !== undefined) {
-    newSettings.musicVolume = Number(changes.musicVolume);
   }
   if (changes.effectsVolume !== undefined) {
     newSettings.effectsVolume = Number(changes.effectsVolume);

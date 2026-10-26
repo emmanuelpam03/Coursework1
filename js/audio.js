@@ -6,7 +6,6 @@ export class AudioManager {
     this.muted = settings.muted || false;
     this.masterVolume = settings.masterVolume || 0.08;
     this.effectsVolume = settings.effectsVolume || 0.08;
-    this.musicVolume = settings.musicVolume || 0.05;
   }
 
   // Ask the browser to allow audio after user interaction.
@@ -46,10 +45,9 @@ export class AudioManager {
 
   // Update volume settings.
   setVolumes(settings = {}) {
-    const { masterVolume, effectsVolume, musicVolume } = settings;
+    const { masterVolume, effectsVolume } = settings;
     if (masterVolume !== undefined) this.masterVolume = Number(masterVolume);
     if (effectsVolume !== undefined) this.effectsVolume = Number(effectsVolume);
-    if (musicVolume !== undefined) this.musicVolume = Number(musicVolume);
   }
 
   // Sound used when firing.

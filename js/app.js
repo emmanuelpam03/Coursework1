@@ -250,7 +250,6 @@ function setupSettings() {
   const settings = getSettings();
   form.querySelector('[name="difficulty"]').value = settings.difficulty;
   form.querySelector('[name="masterVolume"]').value = settings.masterVolume;
-  form.querySelector('[name="musicVolume"]').value = settings.musicVolume;
   form.querySelector('[name="effectsVolume"]').value = settings.effectsVolume;
   form.querySelector('[name="highContrast"]').checked = settings.highContrast;
   form.querySelector('[name="largeText"]').checked = settings.largeText;
@@ -269,7 +268,6 @@ function setupSettings() {
     const data = {
       difficulty: form.querySelector('[name="difficulty"]').value,
       masterVolume: form.querySelector('[name="masterVolume"]').value,
-      musicVolume: form.querySelector('[name="musicVolume"]').value,
       effectsVolume: form.querySelector('[name="effectsVolume"]').value,
       highContrast: form.querySelector('[name="highContrast"]').checked,
       largeText: form.querySelector('[name="largeText"]').checked,
@@ -287,7 +285,6 @@ function setupSettings() {
       },
     };
     data.masterVolume = Number(data.masterVolume);
-    data.musicVolume = Number(data.musicVolume);
     data.effectsVolume = Number(data.effectsVolume);
     saveSettings(data);
     applySettings();
