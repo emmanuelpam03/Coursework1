@@ -300,6 +300,10 @@ function updateHud() {
   scoreValue.textContent = String(score).padStart(6, "0");
   healthValue.textContent = `${Math.max(0, health)}%`;
   healthBar.style.width = `${Math.max(0, health)}%`;
+  healthBar.parentElement.setAttribute(
+    "aria-valuenow",
+    String(Math.max(0, health)),
+  );
   loadoutName.textContent = currentWeapon().name;
   loadoutDamage.className = `stat-meter ${weaponLevel >= 0 ? "meter-active" : ""}`;
   loadoutFire.className = `stat-meter ${weaponLevel >= 1 ? "meter-active" : ""}`;

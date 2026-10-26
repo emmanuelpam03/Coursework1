@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="css/main.css?v=2" />
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script type="module" src="js/app.js"></script>
     <script type="module" src="js/game.js"></script>
   </head>
 
@@ -60,7 +61,16 @@
             </div>
           </div>
           <div class="hud-bottom">
-            <div class="health-track"><span id="health-bar"></span></div>
+            <div
+              class="health-track"
+              role="progressbar"
+              aria-label="Core integrity"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="100"
+            >
+              <span id="health-bar"></span>
+            </div>
             <span class="hud-hint">WASD move / click to fire</span
             ><button class="hud-pause" id="pause-button" type="button">
               Pause
