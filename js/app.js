@@ -161,14 +161,26 @@ function setupRankings() {
   const view = document.querySelector("#score-view");
   const render = () => {
     const selected = filter ? filter.value : "all";
-    let source = getBestScores();
-    if (view && view.value === "all") source = getAllScores();
-    const scores = [];
+    const source = getAllScores();
+    const filteredScores = [];
     for (let index = 0; index < source.length; index += 1) {
       const score = source[index];
       const difficulty = String(score.difficulty || "standard").toLowerCase();
       if (selected === "all" || difficulty === selected) {
-        scores.push(score);
+        filteredScores.push(score);
+      }
+    }
+
+    const scores = [];
+    if (view && view.value === "all") {
+      scores.push(...filteredScores);
+    } else {
+      const includedUsers = new Set();
+      for (const score of filteredScores) {
+        if (!includedUsers.has(score.username)) {
+          includedUsers.add(score.username);
+          scores.push(score);
+        }
       }
     }
     empty.hidden = scores.length > 0;
@@ -210,6 +222,8 @@ function setupRankings() {
     if (personalBest) {
       if (own) {
         personalBest.textContent = `Personal best: ${own.score.toLocaleString()} points - Level ${own.level}`;
+      } else if (current) {
+        personalBest.textContent = "No runs logged yet.";
       } else {
         personalBest.textContent = "Log in to track your personal best.";
       }

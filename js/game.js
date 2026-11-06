@@ -418,7 +418,7 @@ function endRun(completed) {
   started = false;
   spriteAnimator.frame(completed ? "celebrating" : "defeated");
   const user = getCurrentUser();
-  if (user && !tutorialMode) {
+  if (user) {
     saveScore({
       username: user.username,
       score,
@@ -431,8 +431,9 @@ function endRun(completed) {
   if (!completed) {
     message.textContent = `Mission failed. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} reached.`;
   } else if (tutorialMode) {
-    message.textContent =
-      "Training complete. You can now play the full game, where your levels and upgrades are affected.";
+    message.textContent = user
+      ? "Training complete. Your result is logged. You can now play the full game, where your levels and upgrades are affected."
+      : "Training complete. Log in to save your result, then play the full game.";
   } else if (user) {
     message.textContent = `Mission complete. ${score.toLocaleString()} points - ${scoreManager.accuracy}% accuracy - Wave ${wave} secured. Your result is logged.`;
   } else {
