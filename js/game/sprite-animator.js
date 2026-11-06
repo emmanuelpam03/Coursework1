@@ -1,4 +1,4 @@
-// Gives the sprite sheet readable animation names.
+// Maps readable animation names to sprite-sheet frames.
 export class SpriteAnimator {
   // Store the sprite and its frame definitions.
   constructor(sprite, states = {}) {

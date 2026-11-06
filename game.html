@@ -17,6 +17,7 @@
   </head>
 
   <body data-page="game">
+    <!-- Game header and session status -->
     <header class="site-header game-header">
       <a class="logo" href="index.html" aria-label="Arena Defender home"
         ><span class="logo-mark">AD</span><span>Arena <b>Defender</b></span></a
@@ -39,7 +40,9 @@
         Menu
       </button>
     </header>
+    <!-- Game arena and interface -->
     <main class="game-layout">
+      <!-- 3D arena, HUD and mission overlay -->
       <section class="game-stage">
         <canvas
           id="renderCanvas"
@@ -89,6 +92,7 @@
           </button>
         </div>
       </section>
+      <!-- Current loadout and mission objectives -->
       <aside class="game-sidebar">
         <div class="sidebar-block">
           <p class="eyebrow">Current loadout</p>

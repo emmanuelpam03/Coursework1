@@ -1,3 +1,4 @@
+// Connects the game systems and manages the Babylon.js game loop.
 // Import the storage and game classes used by this page.
 import {
   getCurrentUser,
@@ -181,7 +182,7 @@ const tutorialMode =
   new URLSearchParams(window.location.search).get("mode") === "tutorial";
 let totalWaves = 0;
 const tutorialEnemyTarget = 6;
-// Load all of the game information from the data folder.
+// Load difficulty, weapon, level and enemy data before the run starts.
 async function loadGameData() {
   try {
     const difficultiesResponse = await fetch("data/difficulties.json");
@@ -285,17 +286,17 @@ if (tutorialMode) {
   message.textContent =
     "Learn movement, firing, and dodging in one short training wave.";
 }
-// Return the player's current weapon.
+// Return the player's current weapon configuration.
 function currentWeapon() {
   return weaponModels[weaponLevel];
 }
-// Apply the current environment colours.
+// Apply the current level's environment colours.
 function applyLevelTheme() {
   const theme = levelThemes[wave - 1];
   renderer.applyTheme(theme);
   if (sessionLabel) sessionLabel.textContent = levelNames[wave - 1];
 }
-// Update the visible score, health, wave, and loadout.
+// Update the HUD with the current run state.
 function updateHud() {
   waveValue.innerHTML = `${String(wave).padStart(2, "0")} <small>/ ${String(totalWaves).padStart(2, "0")}</small>`;
   scoreValue.textContent = String(score).padStart(6, "0");
@@ -310,12 +311,12 @@ function updateHud() {
   loadoutFire.className = `stat-meter ${weaponLevel >= 1 ? "meter-active" : ""}`;
   loadoutRange.className = `stat-meter ${weaponLevel >= 2 ? "meter-active" : ""}`;
 }
-// Start a short screen shake when enabled.
+// Start a short screen shake when the setting allows it.
 function triggerScreenShake() {
   if (!settings.screenShake || settings.reducedEffects) return;
   shakeRemaining = 0.18;
 }
-// Create one enemy using the current wave rules.
+// Select and create an enemy using the current wave and difficulty rules.
 function spawnEnemy() {
   const threatRoll = Math.random();
   let enemyType = "ball";
@@ -389,7 +390,7 @@ function spawnPowerUp(position) {
   mesh.material = signalMaterial;
   powerUps.push(new PowerUp(mesh));
 }
-// Fire one projectile in the current aim direction.
+// Fire one projectile using the current weapon and aim direction.
 function fire() {
   if (!started || paused || fireCooldown > 0) return;
   audioManager.fire();
@@ -410,7 +411,7 @@ function fire() {
   );
   fireCooldown = weapon.fireRate;
 }
-// End the run and save its result once.
+// Stop the run, save an eligible result and show its outcome.
 function endRun(completed) {
   if (completed === undefined) completed = false;
   if (!started) return;
@@ -455,7 +456,7 @@ function endRun(completed) {
     : "Run it again ->";
   overlay.classList.remove("hidden");
 }
-// Start a new run from the first wave.
+// Reset game objects and start a new run from the first wave.
 async function startRun() {
   audioManager.unlock();
   const dataLoaded = await difficultyConfigReady;
@@ -503,7 +504,7 @@ async function startRun() {
   updateHud();
   renderer.setReducedEffects(settings.reducedEffects);
 }
-// Start the next wave after the player confirms deployment.
+// Resume play after the player confirms the next wave.
 async function continueToNextWave() {
   audioManager.unlock();
   const dataLoaded = await difficultyConfigReady;
@@ -534,7 +535,7 @@ function updateAimDirection() {
   if (inputManager.isDown("right")) direction.x += 1;
   if (direction.lengthSquared() > 0) aimDirection = direction.normalize();
 }
-// Connect input actions to game actions.
+// Connect keyboard, pointer and button input to game actions.
 inputManager.onFire = fire;
 inputManager.onPause = () => {
   paused = gameState.togglePause();
@@ -551,7 +552,7 @@ startButton.addEventListener("click", () => {
 document.querySelector("#pause-button").addEventListener("click", () => {
   paused = gameState.togglePause();
 });
-// Update all game objects before each rendered frame.
+// Update movement, spawning, collisions, pickups and wave progression each frame.
 scene.onBeforeRenderObservable.add(() => {
   if (!started || paused) return;
   const delta = engine.getDeltaTime() / 1000;
@@ -594,6 +595,7 @@ scene.onBeforeRenderObservable.add(() => {
     enemiesSpawnedThisWave += 1;
     spawnTimer = Math.max(0.45, 1.4 - wave * 0.15);
   }
+  // Move enemies towards the player and apply contact damage.
   for (let index = enemies.length - 1; index >= 0; index -= 1) {
     const enemy = enemies[index];
     enemy.update(player.position, delta);
@@ -610,6 +612,7 @@ scene.onBeforeRenderObservable.add(() => {
     }
   }
   if (!started) return;
+  // Move projectiles, remove expired shots and resolve projectile collisions.
   for (
     let projectileIndex = projectiles.length - 1;
     projectileIndex >= 0;
@@ -651,6 +654,7 @@ scene.onBeforeRenderObservable.add(() => {
     }
     updateHud();
   }
+  // Update pickup lifetimes and apply repairs when the player collects one.
   for (
     let powerUpIndex = powerUps.length - 1;
     powerUpIndex >= 0;

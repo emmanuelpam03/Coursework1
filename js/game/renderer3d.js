@@ -1,4 +1,4 @@
-// Handles the visible Babylon.js scene changes.
+// Applies game themes and visual state to the Babylon.js scene.
 export class Renderer3D {
   // Store the scene objects used by the renderer.
   constructor(scene, arenaMaterial, sprite) {

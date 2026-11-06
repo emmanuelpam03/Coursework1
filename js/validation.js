@@ -1,4 +1,5 @@
-// Check registration details before creating an account.
+// Validates registration form data and reports field-level errors.
+// Duplicate usernames and email addresses are checked before account creation.
 export function validateRegistration(data, users) {
   const errors = {};
 

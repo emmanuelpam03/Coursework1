@@ -1,4 +1,4 @@
-// Controls the current wave and its environment.
+// Tracks the current wave, target count and environment theme.
 export class LevelManager {
   // Store the level data and start at the first level.
   constructor(names, themes, enemyTargets) {

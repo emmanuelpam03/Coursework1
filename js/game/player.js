@@ -1,4 +1,4 @@
-// Stores player health, movement, and sprite position.
+// Controls player health, movement and sprite synchronisation.
 export class Player {
   // Connect the player logic to its visible mesh and sprite.
   constructor(mesh, sprite) {

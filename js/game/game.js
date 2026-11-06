@@ -1,4 +1,4 @@
-// Stores the main running and paused state of the game.
+// Stores the running and paused state shared by the game page.
 export class Game {
   // The game starts stopped.
   constructor() {

@@ -1,3 +1,4 @@
+// Connects page forms, navigation, rankings and profile settings.
 import {
   addUser,
   clearSession,
@@ -28,7 +29,7 @@ function applySettings() {
   document.body.classList.toggle("reduced-effects", settings.reducedEffects);
 }
 
-// Set up the menu and login links.
+// Set up the responsive menu and account links.
 function setupNavigation() {
   const toggle = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".site-nav");
@@ -56,7 +57,7 @@ function setupNavigation() {
   }
 }
 
-// Handle account creation.
+// Validate account details, then save the new local account.
 function setupRegistration() {
   const form = document.querySelector("#register-form");
   if (!form) return;
@@ -113,7 +114,7 @@ function setupRegistration() {
   });
 }
 
-// Handle user login.
+// Validate credentials and create a local session.
 function setupLogin() {
   const form = document.querySelector("#login-form");
   if (!form) return;
@@ -151,7 +152,7 @@ function setupLogin() {
   });
 }
 
-// Render the score table and filters.
+// Render the ranking table and apply its filters.
 function setupRankings() {
   const body = document.querySelector("#ranking-body");
   const empty = document.querySelector("#ranking-empty");
@@ -234,7 +235,7 @@ function setupRankings() {
   render();
 }
 
-// Fill the profile page with the current user's details.
+// Fill the profile page with the current user's saved details.
 function setupProfile() {
   const user = getCurrentUser();
   const name = document.querySelector("#profile-name");
@@ -265,7 +266,7 @@ function setupProfile() {
   action.href = "game.html";
 }
 
-// Load and save the user's game settings.
+// Load settings into the form and save changes to localStorage.
 function setupSettings() {
   const form = document.querySelector("#settings-form");
   if (!form) return;

@@ -1,4 +1,4 @@
-// Stores one weapon's damage and firing settings.
+// Stores weapon definitions used by the firing system.
 export class Weapon {
   // Copy the weapon definition into the class.
   constructor(definition) {

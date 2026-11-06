@@ -1,4 +1,4 @@
-// Stores shared enemy behaviour.
+// Controls shared enemy movement, health and removal behaviour.
 export class Enemy {
   // Create an enemy from a mesh and its statistics.
   constructor(mesh, type, stats) {
@@ -30,5 +30,8 @@ export class Enemy {
 }
 
 // Named classes keep enemy types clear for future behaviour changes.
+// Identifies the standard spherical enemy type.
 export class BallEnemy extends Enemy {}
+
+// Identifies the heavier box-shaped enemy type.
 export class StoneEnemy extends Enemy {}

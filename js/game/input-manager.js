@@ -1,4 +1,4 @@
-// Reads keyboard input and turns keys into game actions.
+// Converts keyboard input into movement, firing and pause actions.
 export class InputManager {
   // Set the default controls and keyboard listeners.
   constructor(target = window) {
@@ -23,6 +23,7 @@ export class InputManager {
     target.addEventListener("keyup", this.boundKeyUp);
   }
 
+  // Record held keys and trigger fire or pause actions.
   handleKeyDown(event) {
     const key = event.key.toLowerCase();
 
@@ -38,6 +39,7 @@ export class InputManager {
     }
   }
 
+  // Stop tracking a key when it is released.
   handleKeyUp(event) {
     delete this.keys[event.key.toLowerCase()];
   }

@@ -1,5 +1,6 @@
-// Creates simple sound effects with the browser Web Audio API.
+// Provides the game's short sound effects through the Web Audio API.
 export class AudioManager {
+  // Controls audio context setup, volume and sound effects.
   // Load saved audio settings.
   constructor(settings = {}) {
     this.context = null;

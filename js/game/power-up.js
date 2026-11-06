@@ -1,4 +1,4 @@
-// Represents a pickup that can help the player.
+// Controls repair pickups and their limited lifetime.
 export class PowerUp {
   // Create a repair pickup.
   constructor(mesh, kind = "repair") {

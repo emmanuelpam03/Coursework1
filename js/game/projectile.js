@@ -1,4 +1,4 @@
-// Stores one projectile's movement and damage.
+// Controls projectile movement, range and damage values.
 export class Projectile {
   // Create a projectile with a direction and maximum range.
   constructor(mesh, direction, damage, range) {

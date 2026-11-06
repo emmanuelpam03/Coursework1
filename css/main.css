@@ -1,4 +1,4 @@
-/* CSS Variables */
+/* Colour, typography and layout variables */
 :root {
   --ink: #10171b;
   --ink-soft: #172126;
@@ -14,7 +14,7 @@
   --header-height: 76px;
 }
 
-/* Global Styles */
+/* General page styles and browser defaults */
 * {
   box-sizing: border-box;
 }
@@ -59,7 +59,7 @@ a {
   outline-offset: 4px;
 }
 
-/* Style for the site header */
+/* Header, logo and navigation */
 .site-header {
   min-height: var(--header-height);
   padding: 0 5vw;
@@ -157,7 +157,7 @@ a {
   cursor: pointer;
 }
 
-/* Style for the hero section */
+/* Home page hero and radar decoration */
 .hero {
   height: calc(100svh - var(--header-height));
   min-height: calc(100svh - var(--header-height));
@@ -270,11 +270,6 @@ h2 em {
 .button-primary:hover {
   background: #27373b;
 }
-
-/* .button-wide {
-  width: 100%;
-  margin-top: 1rem;
-} */
 
 .text-link {
   border-bottom: 1px solid currentColor;
@@ -431,7 +426,7 @@ h2 em {
   color: #526059;
 }
 
-/* Statistics Section */
+/* Home page deployment statistics */
 .stat-section {
   padding-top: 1.2rem;
   padding-bottom: 1.2rem;
@@ -466,7 +461,7 @@ h2 em {
   letter-spacing: .08em;
 }
 
-/* Site Footer */
+/* Site footer */
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -482,7 +477,7 @@ h2 em {
   color: var(--ink);
 }
 
-/* Registration/Login Form */
+/* Registration, login and shared form controls */
 .form-page {
   display: grid;
   grid-template-columns: .8fr 1.2fr;
@@ -627,7 +622,7 @@ select:focus {
   text-decoration: underline;
 }
 
-/* About/Profile/Rankings Pages */
+/* Shared content page layout */
 .content-page {
   min-height: calc(100vh - var(--header-height) - 66px);
   padding: 8vh 10vw;
@@ -647,7 +642,7 @@ select:focus {
   font-size: clamp(4.5rem, 9vw, 8rem);
 }
 
-/* Rankings Page */
+/* Rankings table and filters */
 .ranking-panel {
   background: var(--paper);
 }
@@ -720,7 +715,7 @@ tr.current {
   font-size: 13px;
 }
 
-/* Instructions Page */
+/* Instructions and control reference */
 .manual-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -791,7 +786,7 @@ tr.current {
   letter-spacing: .08em;
 }
 
-/* Profile Page */
+/* Player profile */
 .profile-panel {
   max-width: 840px;
   padding: 3rem;
@@ -846,7 +841,7 @@ tr.current {
   font: 700 42px var(--serif);
 }
 
-/* About Page */
+/* About page */
 .about-copy {
   max-width: 860px;
 }
@@ -883,7 +878,7 @@ tr.current {
   text-transform: uppercase;
 }
 
-/* Reveal Animation */
+/* Reveal and radar animations */
 .reveal {
   animation: reveal .8s ease both;
 }
@@ -911,7 +906,7 @@ tr.current {
 }
 
 
-/* Responsive Design */
+/* Responsive layout */
 @media (max-width: 850px) {
   .site-header {
     padding: 0 6vw;
@@ -1071,7 +1066,7 @@ tr.current {
   }
 }
 
-/* Keep the opening message and primary action within the first viewport. */
+/* Keep the home message and primary action within the first viewport. */
 .home-hero {
   min-height: calc(100svh - var(--header-height));
 }
@@ -1123,8 +1118,7 @@ tr.current {
     width: min(42vw, 220px);
   }
 }
-/* Accessibility settings
-   app.js adds these classes to the body when the user changes settings. */
+/* Accessibility settings applied by app.js */
 body.large-text {
   zoom: 1.15;
 }
@@ -1233,8 +1227,7 @@ body.reduced-effects *::after {
     grid-template-columns: 1fr;
   }
 }
-/* Game page
-   These rules style the arena, HUD, overlay, and loadout sidebar. */
+/* Game page, arena, HUD, overlay and loadout sidebar */
 body[data-page="game"] {
   background: #0c1418;
   color: var(--paper);

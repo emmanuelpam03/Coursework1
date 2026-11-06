@@ -1,4 +1,4 @@
-// It saves users, the current login, and settings in localStorage.
+// Manages users, sessions, settings and scores in localStorage.
 
 const USERS_KEY = "arena-defender-users";
 const SESSION_KEY = "arena-defender-session";
@@ -93,6 +93,7 @@ function cleanUser(user) {
   return user;
 }
 
+// Read and validate all locally stored users.
 export function getUsers() {
   const savedUsers = read(USERS_KEY, []);
   if (!Array.isArray(savedUsers)) return [];
@@ -105,6 +106,7 @@ export function getUsers() {
   return users;
 }
 
+// Clean and save the complete user list.
 export function saveUsers(users) {
   const cleanUsers = [];
 
@@ -118,6 +120,7 @@ export function saveUsers(users) {
   save(USERS_KEY, cleanUsers);
 }
 
+// Return the current session when its stored shape is valid.
 export function getSession() {
   const session = read(SESSION_KEY, null);
   if (
@@ -131,14 +134,17 @@ export function getSession() {
   return { username: session.username };
 }
 
+// Store the username for the current browser session.
 export function setSession(username) {
   save(SESSION_KEY, { username });
 }
 
+// Remove the current browser session.
 export function clearSession() {
   window.localStorage.removeItem(SESSION_KEY);
 }
 
+// Find an account by username or email.
 export function findUser(identifier) {
   const searchText = String(identifier || "").trim().toLowerCase();
 
@@ -151,6 +157,7 @@ export function findUser(identifier) {
   return null;
 }
 
+// Resolve the active session to its saved user record.
 export function getCurrentUser() {
   const session = getSession();
   if (!session) return null;
@@ -162,6 +169,7 @@ export function getCurrentUser() {
   return null;
 }
 
+// Read settings and merge them with safe defaults.
 export function getSettings() {
   const saved = read(SETTINGS_KEY, {});
   const settings =
@@ -236,6 +244,7 @@ export function getSettings() {
   return result;
 }
 
+// Merge and save updated browser settings.
 export function saveSettings(settings) {
   const current = getSettings();
   const changes =
@@ -300,6 +309,7 @@ export function saveSettings(settings) {
   save(SETTINGS_KEY, newSettings);
 }
 
+// Update progress for the user in the active session.
 export function updateCurrentUserProgress(progress) {
   const user = getCurrentUser();
   if (
@@ -326,12 +336,14 @@ export function updateCurrentUserProgress(progress) {
   }
 }
 
+// Add a new user to the local account list.
 export function addUser(user) {
   const users = getUsers();
   users.push(user);
   saveUsers(users);
 }
 
+// Add a cleaned run result to the matching user's record.
 export function saveScore(score) {
   const users = getUsers();
   let user = null;
@@ -354,6 +366,7 @@ export function saveScore(score) {
   saveUsers(users);
 }
 
+// Return all saved runs sorted from highest to lowest score.
 export function getAllScores() {
   const scores = [];
 
@@ -366,6 +379,7 @@ export function getAllScores() {
   return scores.sort((first, second) => second.score - first.score);
 }
 
+// Return only the highest-scoring run for each user.
 export function getBestScores() {
   const bestScores = [];
   for (const score of getAllScores()) {

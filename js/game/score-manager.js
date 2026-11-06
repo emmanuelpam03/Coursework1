@@ -1,4 +1,4 @@
-// Stores score, shots, hits, and accuracy for one run.
+// Tracks score, shots, hits and accuracy for one run.
 export class ScoreManager {
   // Start with an empty result.
   constructor() {
